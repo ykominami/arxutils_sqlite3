@@ -1,5 +1,4 @@
-# frozen_string_literal: true
-
-module ArxutilsSqlite3
-  VERSION = "0.1.0"
+module Arxutils_Sqlite3
+  # バージョン番号
+  VERSION = "0.1.37"
 end

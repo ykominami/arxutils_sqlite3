@@ -1,0 +1,15 @@
+class CreateCurrent<%= @data[:classname_downcase] %> < ActiveRecord::Migration[<%= @data[:ar_version] %>]
+  def self.up
+    execute <<-SQL
+      CREATE VIEW current<%= @data[:plural] %> AS SELECT id as org_id,
+<%= @data[:ary].map{|x| x.name }.join(" , ") %>    
+      FROM <%= @data[:plural] %> where not exists (select * from invalid<%= @data[:plural] %> where invalid<%= @data[:plural] %>.org_id = <%= @data[:plural] %>.id )
+    SQL
+  end
+
+  def self.down
+    execute <<-SQL
+      DROP VIEW current<%= @data[:plural] %>
+    SQL
+  end
+end

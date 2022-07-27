@@ -4,7 +4,7 @@ require_relative "lib/arxutils_sqlite3/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "arxutils_sqlite3"
-  spec.version       = ArxutilsSqlite3::VERSION
+  spec.version       = Arxutils_Sqlite3::VERSION
   spec.authors       = ["yasuo kominami"]
   spec.email         = ["ykominami@gmail.com"]
 
@@ -34,12 +34,14 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "activesupport"
   # spec.add_runtime_dependency "erb"
-  spec.add_runtime_dependency "activerecord", "~> 4.2"
+  #spec.add_runtime_dependency "activerecord", "~> 4.2"
+  spec.add_runtime_dependency "activerecord"
   spec.add_runtime_dependency "sqlite3"
   # spec.add_runtime_dependency "mysql2" , "~> 0.4.1"
   spec.add_runtime_dependency "encx"
 
-  spec.add_development_dependency "bundler", "~> 2.2.10"
+  #spec.add_development_dependency "bundler", "~> 2.2.10"
+  spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "rspec"
   # Uncomment to register a new dependency of your gem

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe ArxutilsSqlite3 do
+RSpec.describe Arxutils_Sqlite3 do
   it "has a version number" do
     expect(ArxutilsSqlite3::VERSION).not_to be nil
   end
