@@ -50,7 +50,7 @@ module Arxutils_Sqlite3
       mig.output_relation_script( content_array , opts[:relation] )
 
       # データベース接続とログ設定
-      ::Arxutils::Dbutil::DbMgr.setup( mig.dbinit )
+      ::Arxutils_Sqlite3::Dbutil::DbMgr.setup( mig.dbinit )
 
       # migrateを実行する
       mig.migrate
