@@ -4,7 +4,7 @@ require 'arxutils_sqlite3/dbutil/dbinit'
 require 'date'
 require 'pp'
 
-module Arxutils
+module Arxutils_Sqlite3
   module Dbutil
     # DB接続時に、現在日時も取得したい場合のユーティリティクラス
     class DbMgr
