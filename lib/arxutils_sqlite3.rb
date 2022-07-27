@@ -12,6 +12,8 @@ require_relative 'arxutils_sqlite3/hier'
 require_relative 'arxutils_sqlite3/migrate'
 require_relative 'arxutils_sqlite3/dbutil/dbinit.rb'  
 require_relative 'arxutils_sqlite3/dbutil/dbmgr.rb'
+=begin
+=end
 
 module Arxutils_Sqlite3
   class Error < StandardError; end
