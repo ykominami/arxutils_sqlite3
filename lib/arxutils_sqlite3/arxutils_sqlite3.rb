@@ -1,22 +1,9 @@
 # -*- coding: utf-8 -*-
-
+require 'pathname'
 module Arxutils_Sqlite3
-  # モジュールArxutils内でのユーティリティクラス
-  class Arxutils
-    # モジュールArxutils内のテンプレートファイル格納ディレクトリへのパスを返す
-    def self.templatedir
-      File.join(  Arxutils.dirname , ".." , "template" )
-    end
-
-    # モジュールArxutils内の構成情報格納ディレクトリへのパスを返す
-    def self.configdir
-      File.join( Arxutils.dirname  , ".." , 'config' )
-    end
-
-  private
-    # モジュールArxutils内のlib/arxutilsディレクトリへのパスを返す
-    def self.dirname
-      File.dirname( __FILE__ )
-    end
-  end
+  TOP_DIR = Pathname(__FILE__).parent.parent
+  TEMPLATE_DIR = TOP_DIR + 'template'
+  TEMPLATE_RELATION_DIR = TEMPLATE_DIR.join('relation')
+  TEMPLATE_CONFIG_DIR = TEMPLATE_DIR.join('config')
+  CONFIG_DIR = 'config'
 end

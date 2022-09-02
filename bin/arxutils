@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+require 'arxutils_sqlite3'
+
+class X
+  def initialize(hs, opts)
+    register_time = Arxutils_Sqlite3::Dbutil::DbMgr.init(
+      hs["db_dir"],
+      hs["migrate_dir"],
+      hs["config_dir"],
+      hs["dbconfig"],
+      hs["env"],
+      hs["log_fname"],
+      opts)
+
+    # 保存用DBマネージャ
+    #@dbmgr = Dbutil::EnopMgr.new(register_time)
+    #puts "@dbmgr=#{@dbmgr}"
+  end
+end
+
+env = ENV['ENV']
+#env ||= "development"
+env ||= "production"
+
+opts = { db_dir: Arxutils_Sqlite3::Dbutil::DB_DIR }
+
+opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 unless opts["dbconfig"]
+
+hs = {
+  "db_dir" => Arxutils_Sqlite3::Dbutil::DB_DIR,
+  "migrate_dir" => Arxutils_Sqlite3::Dbutil::MIGRATE_DIR,
+  "config_dir" => Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
+  "dbconfig" => opts["dbconfig"],
+  "env" => env,
+  "log_fname" => Arxutils_Sqlite3::Dbutil::DATABASELOG,
+  :csv_fname => "x.csv",
+  "output_dir" => "output"
+}
+
+
+x = X.new(
+      hs,
+      opts,
+      )

@@ -4,6 +4,7 @@ require 'arxutils_sqlite3'
 require 'fileutils'
 require 'active_support'
 require 'active_record'
+require 'active_record/migration'
 require 'pp'
 
 # ActiveRecord用ユーティリティモジュール
@@ -73,9 +74,9 @@ module Arxutils_Sqlite3
         # migrate用スクリプトの出力先ディレクトリ名
         @migrate_dir = @dbinit.migrate_dir
         # テンプレートファイル格納ディレクトリ名
-        @src_path = Arxutils.templatedir
+        @src_path = Arxutils_Sqlite3::TEMPLATE_RELATION_DIR
         # 構成ファイル格納ディレクトリ
-        @src_config_path = Arxutils.configdir
+        @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
       end
 
       # Countクラス用のrelationのスクリプトの内容に変換
@@ -85,6 +86,8 @@ module Arxutils_Sqlite3
 
       # テンプレートファイルからスクリプトの内容に変換
       def convert( data , src_dir , src_fname )
+        p "src_dir=#{src_dir}"
+        p "src_fname=#{src_fname}"
         arx = Arx.new( data , File.join( src_dir, src_fname ) )
         # 指定テンプレートファイルからスクリプトの内容に作成
         arx.create
