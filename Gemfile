@@ -15,4 +15,4 @@ gem "rubocop-rspec"
 gem "yard"
 
 gem "simpleoptparse"
-gem "ykxutils"
+gem "ykxutils", "> 0.1.0"
