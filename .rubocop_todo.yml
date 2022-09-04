@@ -294,7 +294,7 @@ Lint/RescueException:
   Exclude:
     - 'lib/arxutils_sqlite3/dbutil/dbinit.rb'
 
-Lint/ScriptPermmison:
+Lint/ScriptPermission:
   Exclude:
     - 'bin/arxutils'
     - 'bin/console'
