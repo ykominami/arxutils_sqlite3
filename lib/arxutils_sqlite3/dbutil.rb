@@ -1,21 +1,21 @@
-require_relative 'dbutil/dbinit.rb'  
-require_relative 'dbutil/dbmgr.rb'
+require_relative "dbutil/dbinit"
+require_relative "dbutil/dbmgr"
 
 module Arxutils_Sqlite3
   # DB操作用ユーティリティクラス
   module Dbutil
     # DB格納ディレクトリ名
-    DB_DIR = 'db'
+    DB_DIR = "db".freeze
     # migrate用スクリプト格納ディレクトリ名
-    MIGRATE_DIR = 'migrate'
+    MIGRATE_DIR = "migrate".freeze
     # SQLITE3用DB構成名
-    DBCONFIG_SQLITE3 = 'sqlite3'
+    DBCONFIG_SQLITE3 = "sqlite3".freeze
     # MYSQL用DB構成名
-    DBCONFIG_MYSQL = 'mysql'
+    DBCONFIG_MYSQL = "mysql".freeze
     # DB構成格納用ディレクトリ名
-    CONFIG_DIR = 'config'
+    CONFIG_DIR = "config".freeze
     # データベース用ログファイル名
-    DATABASELOG = 'database.log'
+    DATABASELOG = "database.log".freeze
 
     # DB接続までの初期化を行う
   end

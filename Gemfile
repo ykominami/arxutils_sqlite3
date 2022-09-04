@@ -14,4 +14,5 @@ gem "rubocop-rake"
 gem "rubocop-rspec"
 gem "yard"
 
-gem 'simpleoptparse'
+gem "simpleoptparse"
+gem "ykxutils"
