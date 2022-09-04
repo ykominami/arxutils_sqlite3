@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+require "arxutils_sqlite3"
+require "simpleoptparse"
+
+require "yaml"
+
+AR_VERSION = 6.0
+
+opts = {
+  db_dir: Arxutils_Sqlite3::Dbutil::DB_DIR,
+  relation: {
+    module: %w[Enop Dbutil],
+    filename: "dbrelation.rb",
+    dir: "lib/arxutils_sqlite3/dbutil"
+  }
+}
+banner = "Usage: bundle exec ruby exe/makemigrate (-c|-r) (--mysql|--sqlite3) -s yaml_file"
+
+Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
+  parser.on("-c", "--makeconfig") { |_x| opts["makeconfig"] = true }
+  parser.on("-r", "--remigrate") { |_x| opts["remigrate"] = true }
+  parser.on("-s yaml_file", "--setting yaml_file") { |file| opts["setting"] = file }
+  parser.on("--mysql") { |_x| opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_MYSQL }
+  parser.on("--sqlite3") { |_x| opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 }
+end
+db_scheme_yaml_file = opts["setting"]
+if db_scheme_yaml_file.nil?
+  puts banner
+  exit 10
+end
+
+opts["makeconfig"] = !opts["makeconfig"].nil?
+opts["remigrate"] = !opts["remigrate"].nil?
+
+db_scheme_ary = YAML.load_file(db_scheme_yaml_file)
+pp db_scheme_ary
+
+opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 unless opts["dbconfig"]
+
+env = ENV.fetch("ENV", nil)
+# env ||= "development"
+env ||= "production"
+
+Arxutils_Sqlite3::Migrate.migrate(
+  Arxutils_Sqlite3::Dbutil::DB_DIR,
+  Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
+  Arxutils_Sqlite3::Dbutil::DATABASELOG,
+  Arxutils_Sqlite3::Dbutil::MIGRATE_DIR,
+  env,
+  db_scheme_ary,
+  opts["dbconfig"],
+  opts
+)

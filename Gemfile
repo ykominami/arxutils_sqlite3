@@ -13,3 +13,6 @@ gem "rubocop", "~> 1.7"
 gem "rubocop-rake"
 gem "rubocop-rspec"
 gem "yard"
+
+gem "simpleoptparse"
+gem "ykxutils", "> 0.1.0"

@@ -13,3 +13,79 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+AR_VERSION = 6.0
+TEST_DATA_DIR = Pathname(__FILE__).parent.join("test_data")
+
+# Migrate.migrateのテスト実行要メソッド
+class Makemigratex
+  def self.migrate(makeconfig, remigrate)
+    db_scheme_ary = [
+      {
+        flist: %w[noitem],
+        classname: "Countdatetime",
+        classname_downcase: "countdatetime",
+        items: [
+          %w[countdatetime datetime false]
+        ],
+        plural: "countdatetimes",
+        ar_version: AR_VERSION
+      },
+
+      {
+        flist: %w[noitem],
+        classname: "Evnb",
+        classname_downcase: "evnb",
+        items: [
+          %w[time_id integer false],
+          %w[ennb_id integer false]
+        ],
+        plural: "evnbs",
+        ar_version: AR_VERSION
+      },
+
+      {
+        flist: %w[noitem invalid current],
+        classname: "Ennblist",
+        classname_downcase: "ennblist",
+        items: [
+          %w[stack string false],
+          %w[notebook string false],
+          %w[count integer false],
+          %w[tag_count integer false],
+          %w[start_datetime datetime false]
+        ],
+        plural: "ennblists",
+        ar_version: AR_VERSION
+      }
+    ]
+
+    opts = {
+      db_dir: Arxutils_Sqlite3::Dbutil::DB_DIR,
+      relation: {
+        module: %w[Enop Dbutil],
+        filename: "dbrelation.rb",
+        dir: "lib/arxutils_sqlite3/dbutil"
+      }
+    }
+    opts["makeconfig"] = !makeconfig.nil?
+    opts["remigrate"] = !remigrate.nil?
+
+    opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 unless opts["dbconfig"]
+
+    env = ENV.fetch("ENV", nil)
+    # env ||= "development"
+    env ||= "production"
+
+    Arxutils_Sqlite3::Migrate.migrate(
+      Arxutils_Sqlite3::Dbutil::DB_DIR,
+      Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
+      Arxutils_Sqlite3::Dbutil::DATABASELOG,
+      Arxutils_Sqlite3::Dbutil::MIGRATE_DIR,
+      env,
+      db_scheme_ary,
+      opts["dbconfig"],
+      opts
+    )
+  end
+end
