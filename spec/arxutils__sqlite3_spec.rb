@@ -8,7 +8,6 @@ RSpec.describe Arxutils_Sqlite3 do
   it "makemigrate makeconfig" do
     makeconfig = true
     remigrate = false
-
     ret = Makemigratex.migrate(makeconfig, remigrate)
     expect(ret).to be_nil
   end
@@ -16,7 +15,6 @@ RSpec.describe Arxutils_Sqlite3 do
   it "makemigrate remigrate" do
     makeconfig = false
     remigrate = true
-
     ret = Makemigratex.migrate(makeconfig, remigrate)
     expect(ret).to be_nil
   end
@@ -24,7 +22,6 @@ RSpec.describe Arxutils_Sqlite3 do
   it "makemigrate makeconfig remigrate" do
     makeconfig = true
     remigrate = true
-
     ret = Makemigratex.migrate(makeconfig, remigrate)
     expect(ret).to be_nil
   end
