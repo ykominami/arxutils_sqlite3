@@ -10,7 +10,12 @@
 /pkg/
 /spec/reports/
 /tmp/
-
+/db/
 # rspec failure tracking
 .rspec_status
 *.code-workspace
+lib/dbrelation.rb
+config/db_scheme.yml
+config/opts.rb
+bin/makemigrate
+db/*.log

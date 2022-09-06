@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+
+require "arxutils_sqlite3"
+require "simpleoptparse"
+#require "erb"
+require "pp"
+require "ykutils"
+
+opts_file = "./opts.rb"
+if Pathname.new(opts_file).exist?
+  #puts "#### require #{opts_file}"
+  require opts_file
+  #puts "#### require #{opts_file} ##END"
+end
+# DBセットアップクラス
+class Dbsetup
+  def self.init(hash, opts)
+    register_time = Arxutils_Sqlite3::Dbutil::DbMgr.init(
+      hash["db_dir"],
+      hash["migrate_dir"],
+      hash["config_dir"],
+      hash["dbconfig"],
+      hash["env"],
+      hash["log_fname"],
+      opts
+    )
+
+    # 保存用DBマネージャ
+    # @dbmgr = Dbutil::EnopMgr.new(register_time)
+    # puts "@dbmgr=#{@dbmgr}"
+    register_time
+  end
+end
+
+def migrate(env, db_scheme_ary, opts)
+  p %Q!## migrate opts["dbconfig"]=#{opts["dbconfig"]}!
+  p "=================="
+
+  Arxutils_Sqlite3::Migrate.migrate(
+    Arxutils_Sqlite3::Dbutil::DB_DIR,
+    Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
+    Arxutils_Sqlite3::Dbutil::DATABASELOG,
+    Arxutils_Sqlite3::Dbutil::MIGRATE_DIR,
+    env,
+    db_scheme_ary,
+    opts["dbconfig"],
+    opts
+  )
+end
+
+hash = {
+  "db_dir" => Arxutils_Sqlite3::Dbutil::DB_DIR,
+  "migrate_dir" => Arxutils_Sqlite3::Dbutil::MIGRATE_DIR,
+  "config_dir" => Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
+  "log_fname" => Arxutils_Sqlite3::Dbutil::DATABASELOG,
+}
+
+
+banner = "Usage: bundle exec ruby exe/makemigrate --cmd (s|m|r|i) (--mysql|--sqlite3) -s yaml_file"
+
+opts = @opts ? @opts : {}
+
+opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3
+
+Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
+  parser.on("--cmd X", %w[s m r i]) { |x| opts["cmd"] = x }
+  parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
+  parser.on("--mysql") { |_x| opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_MYSQL }
+  parser.on("--sqlite3") { |_x| opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 }
+  parser.on("--klass klass") { |x| opts["klass"] = x }
+end
+
+hash["dbconfig"] = opts["dbconfig"],
+
+env = ENV.fetch("ENV", nil)
+env ||= "production"
+
+hash["env"] = env
+
+puts opts["cmd"]
+
+case opts["cmd"]
+when "s"
+#  dest_file_name = "db_sheme.yml"
+#  dest_file = Arxutils_Sqlite3::CONFIG_DIR.join(dest_file_name)
+  FileUtils.cp(Arxutils_Sqlite3::DB_SCHEME_FILE, Arxutils_Sqlite3::CONFIG_DIR )
+#  optsx = {}
+#  optsx["klass"] = opts["klass"]
+
+  obj = Tilt::ErubiTemplate.new( Arxutils_Sqlite3::OPTS_FILE )
+  result_content = obj.render( Object.new, {klass: opts["klass"]})
+
+  File.open(Arxutils_Sqlite3::DEST_OPTS_FILE, "w"){|file|
+    file.write(result_content)
+  }
+  db_scheme_ary = nil
+
+when "m"
+  opts["makeconfig"] = true
+  opts["remigrate"] = false
+
+  migrate(env, db_scheme_ary, opts)
+when "r"
+  opts["makeconfig"] = false
+  opts["remigrate"] = true
+
+  db_scheme_yaml_file = opts["yaml"]
+  if db_scheme_yaml_file.nil?
+    puts banner
+    exit 10
+  end
+  db_scheme_ary = YAML.load_file(db_scheme_yaml_file)
+
+  pp "==--"
+  pp "main opts=#{opts}"
+  pp "==-- END"
+
+  migrate(env, db_scheme_ary, opts)
+when "i"
+  register_time = Dbsetup.init(
+    hash,
+    opts
+  )
+
+  p register_time
+else
+  raise
+end

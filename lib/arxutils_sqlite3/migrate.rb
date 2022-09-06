@@ -101,8 +101,6 @@ module Arxutils_Sqlite3
 
       # テンプレートファイルからスクリプトの内容に変換
       def convert(data, src_dir, src_fname)
-        p "src_dir=#{src_dir}"
-        p "src_fname=#{src_fname}"
         arx = Arx.new(data, File.join(src_dir, src_fname))
         # 指定テンプレートファイルからスクリプトの内容に作成
         arx.create
@@ -168,6 +166,9 @@ module Arxutils_Sqlite3
 
       # relationのスクリプトをファイル出力する
       def output_relation_script(content_array, opts)
+        pp "opts="
+        pp opts
+        pp "=========="
         dir = opts[:dir]
         fname = opts[:filename]
         fpath = File.join(dir, fname)
