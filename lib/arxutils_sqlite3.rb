@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require "ykutils"
+require "ykxutils"
 
 require "bigdecimal"
 require "active_support"
@@ -23,8 +25,10 @@ module Arxutils_Sqlite3
   DB_SCHEME_DIR = TEMPLATE_RELATION_DIR.join("db_scheme")
   DB_SCHEME_FILE = DB_SCHEME_DIR.join("db_scheme.yml")
   OPTS_FILE_NAME = "opts.rb"
+  OPTS_FILE_NAME_2 = "opts"
   OPTS_FILE = DB_SCHEME_DIR.join(OPTS_FILE_NAME)
   DEST_OPTS_FILE = DEST_CONFIG_DIR.join(OPTS_FILE_NAME)
+  DEST_OPTS_FILE_2 = DEST_CONFIG_DIR.join(OPTS_FILE_NAME_2)
 
   class Error < StandardError; end
   # Your code goes here...

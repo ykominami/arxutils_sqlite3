@@ -19,3 +19,8 @@ config/db_scheme.yml
 config/opts.rb
 bin/makemigrate
 db/*.log
+bin/*.erb
+bin/a.rb
+config/*
+/config2/
+a.bat

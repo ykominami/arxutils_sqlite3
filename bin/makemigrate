@@ -23,7 +23,9 @@ Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSI
   parser.on("--mysql") { |_x| opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_MYSQL }
   parser.on("--sqlite3") { |_x| opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 }
 end
+
 db_scheme_yaml_file = opts["setting"]
+
 if db_scheme_yaml_file.nil?
   puts banner
   exit 10
@@ -33,7 +35,7 @@ opts["makeconfig"] = !opts["makeconfig"].nil?
 opts["remigrate"] = !opts["remigrate"].nil?
 
 db_scheme_ary = YAML.load_file(db_scheme_yaml_file)
-pp db_scheme_ary
+#pp db_scheme_ary
 
 opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 unless opts["dbconfig"]
 

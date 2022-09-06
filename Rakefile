@@ -1,12 +1,17 @@
-# frozen_string_literal: true
+task default: %w[setup migrate integrate]
 
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
+task :setup do
+  sh "bundle exec ruby bin/arxutils-cli --cmd=s --klass=Enop"
+end
 
-RSpec::Core::RakeTask.new(:spec)
+task :migrate do
+  sh "bundle exec ruby bin/arxutils-cli --cmd=m"
+end
 
-require "rubocop/rake_task"
+task :integrate do
+  sh "bundle exec ruby bin/arxutils-cli --cmd=i"
+end
 
-RuboCop::RakeTask.new
-
-task default: %i[spec rubocop]
+task :remigrate do
+  sh "bundle exec ruby bin/arxutils-cli --cmd=r -y config/db_scheme.yml"
+end

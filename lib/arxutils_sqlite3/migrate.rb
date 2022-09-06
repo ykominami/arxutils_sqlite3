@@ -1,7 +1,7 @@
-require "arxutils_sqlite3"
-
+#require "arxutils_sqlite3"
+require "ykutils"
 require "fileutils"
-require "active_support"
+#require "active_support"
 require "active_record"
 require "active_record/migration"
 require "pp"
@@ -17,16 +17,24 @@ module Arxutils_Sqlite3
     # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
     def self.migrate(db_dir, src_config_dir, log_fname, migrate_dir, env, db_scheme_ary, dbconfig, opts)
       log_file_name = format("%s-%s", dbconfig.to_s, log_fname)
+      exit
+      p "#### Migrate.migrate 1"
       mig = Migratex.new(db_dir, migrate_dir, src_config_dir, dbconfig, env, log_file_name, opts)
       # DB構成情報の生成
       # dbconfigのテンプレートは内容が固定である。
-      if  opts["makeconfig"]
+      exit
+      p "#### Migrate.migrate 2"
+      if  opts["migrate_cmd"] =="makeconfig"
         mig.make_dbconfig(opts)
         return
       end
+      p "#### Migrate.migrate 3"
 
       output_script(mig, db_scheme_ary)
+      p "#### Migrate.migrate 4"
       content_array = make_content_array(mig, db_scheme_ary)
+      exit
+      p "#### Migrate.migrate 5"
       # 複数形のクラス名を集める
       count_class_plurals = content_array.reject do |x|
         x[:need_count_class_plural].nil?
@@ -44,14 +52,23 @@ module Arxutils_Sqlite3
         ary.unshift(count_content)
         content_array = ary
       end
+      p "#### Migrate.migrate 6"
+      exit
       # relationのスクリプトを作成
       mig.output_relation_script(content_array, opts[:relation])
+      p "#### Migrate.migrate 7"
+      exit
 
+      dbinit = mig.dbinit
+      p "#### Migrate.migrate 7-2"
+      exit
       # データベース接続とログ設定
-      ::Arxutils_Sqlite3::Dbutil::DbMgr.setup(mig.dbinit)
+      ::Arxutils_Sqlite3::Dbutil::DbMgr.setup(dbinit)
 
+      p "#### Migrate.migrate 8"
       # migrateを実行する
       mig.migrate
+      p "#### Migrate.migrate 9"
     end
 
     # migrationのスクリプトをファイル出力する
@@ -131,12 +148,7 @@ module Arxutils_Sqlite3
             else
               data[:count_classname_downcase] = count_classname_downcase
               name_base = "relation_#{field_name}"
-              p "data=#{data}"
-              p "data[:plural]=#{data[:plural]}"
-              p "s=#{s}"
-              p "s[:need_count_class_plural]=#{s[:need_count_class_plural]}"
               s[:need_count_class_plural] ||= data[:plural]
-              p "s[:need_count_class_plural]=#{s[:need_count_class_plural]}"
             end
             # テンプレートファイルからスクリプトの内容を作成
             content = convert(data, @src_path, "#{name_base}.tmpl")
@@ -147,7 +159,13 @@ module Arxutils_Sqlite3
 
       # スキーマ設定からmigarte用スクリプトの内容を生成
       def make_script_group(data)
-        data[:flist].map { |kind| [kind, convert(data, @src_path, "#{kind}.tmpl"), data[:classname_downcase]] }
+        p data
+        data[:flist].map { 
+          |kind| 
+          [kind, 
+            convert(data, @src_path, "#{kind}.tmpl"), 
+            data[:classname_downcase]
+            ] }
       end
 
       # migrationのスクリプトをファイル出力する
@@ -166,9 +184,6 @@ module Arxutils_Sqlite3
 
       # relationのスクリプトをファイル出力する
       def output_relation_script(content_array, opts)
-        pp "opts="
-        pp opts
-        pp "=========="
         dir = opts[:dir]
         fname = opts[:filename]
         fpath = File.join(dir, fname)

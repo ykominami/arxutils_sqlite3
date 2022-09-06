@@ -48,7 +48,7 @@ module Arxutils_Sqlite3
         # DB構成ファイルの出力先ディレクトリ
         @dest_config_dir = CONFIG_DIR
         # DB構成ファイル名
-        @dbconfig_dest_fname = "#{dbconfig}.yaml"
+        @dbconfig_dest_fname = "#{dbconfig}.yml"
         # DB構成ファイル用テンプレートファイル名
         @dbconfig_src_fname = "#{dbconfig}.tmpl"
         # DB構成ファイルへのパス
@@ -70,7 +70,7 @@ module Arxutils_Sqlite3
         FileUtils.mkdir_p(@migrate_dir) if @migrate_dir
         FileUtils.mkdir_p(@dest_config_dir)
         # remigrateが指定されれば、migrate用スクリプトとDB構成ファイルを削除する
-        return unless opts["remigate"]
+        return if opts["migrate_cmd"] != "remigrate"
 
         FileUtils.rm(Dir.glob(File.join(@migrate_dir, "*"))) if @migrate_dir
         FileUtils.rm(Dir.glob(File.join(@dest_config_dir, "*")))
