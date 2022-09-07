@@ -25,3 +25,4 @@ config/*
 /config2/
 a.bat
 /db/*.sqlite3
+.ruby-version
