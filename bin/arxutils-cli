@@ -53,14 +53,14 @@ hash = {
 }
 
 
-banner = "Usage: bundle exec ruby exe/makemigrate --cmd=(s|c|m|i|r) -s yaml_file --klass=class"
+banner = "Usage: bundle exec ruby exe/makemigrate --cmd=(s|c|m|i|d) -y yaml_file --klass=class"
 
 opts = @opts ? @opts : {}
 
 opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3
 
 Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
-  parser.on("--cmd X", %w[s c m i r]) { |x| opts["cmd"] = x }
+  parser.on("--cmd X", %w[s c m i d]) { |x| opts["cmd"] = x }
   parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
   parser.on("--klass klass") { |x| opts["klass"] = x }
 end
@@ -111,19 +111,10 @@ when "i"
     hash,
     opts
   )
-when "r"
-  #opts["makeconfig"] = false
-  opts["migrate_cmd"] = "remigrate"
-
-  db_scheme_yaml_file = opts["yaml"]
-  if db_scheme_yaml_file.nil?
-    puts banner
-    exit 10
-  end
-  db_scheme_ary = YAML.load_file(db_scheme_yaml_file)
+when "d"
+  opts["migrate_cmd"] = "delete"
+  db_scheme_ary = nil
   migrate(env, db_scheme_ary, opts)
-
-  #p register_time
 else
   raise
 end

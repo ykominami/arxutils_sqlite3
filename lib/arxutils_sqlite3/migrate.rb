@@ -16,68 +16,30 @@ module Arxutils_Sqlite3
 
     # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
     def self.migrate(db_dir, src_config_dir, log_fname, migrate_dir, env, db_scheme_ary, dbconfig, opts)
-      p "Migrate.migrate 1 class"
       log_file_name = format("%s-%s", dbconfig.to_s, log_fname)
-      mig = Migratex.new(db_dir, migrate_dir, src_config_dir, dbconfig, env, log_file_name, opts)
+      mig = Migratex.new(db_dir, migrate_dir, src_config_dir, dbconfig, env, log_file_name, db_scheme_ary, opts)
       # DB構成情報の生成
       # dbconfigのテンプレートは内容が固定である。
       if  opts["migrate_cmd"] == "makeconfig"
         mig.make_dbconfig(opts)
         return
       end
-      p "Migrate.migrate 2 class"
-
-      output_script(mig, db_scheme_ary)
-      content_array = make_content_array(mig, db_scheme_ary)
-      # 複数形のクラス名を集める
-      count_class_plurals = content_array.reject do |x|
-        x[:need_count_class_plural].nil?
+      # remigrateが指定されれば、migrate用スクリプトとDB構成ファイルとDBファイルを削除する
+      if opts["migrate_cmd"] == "delete"
+        mig.delete_migrate_config_and_db
+        return
       end
-      need_count_class_plural = count_class_plurals.map { |x| x[:need_count_class_plural] }
-
-      # relationのmigrateが必要であれば、それをテンプレートファイルから作成して、スクリプトの内容として追加する
-      if content_array.find { |x| !x.nil? }
-        data_count = {
-          count_classname: "Count",
-          need_count_class_plural: need_count_class_plural
-        }
-        ary = content_array.collect { |x| x[:content] }.flatten
-        count_content = mig.convert_count_class_relation(data_count, "relation_count.tmpl")
-        ary.unshift(count_content)
-        content_array = ary
-      end
-      p "Migrate.migrate 3"
-      # relationのスクリプトを作成
-      mig.output_relation_script(content_array, opts[:relation])
-
-      #p "Migrate.migrate 4"
-      #dbinit = mig.dbinit
-      #p dbinit
-      #p "Migrate.migrate 5"
-
-      p "Migrate.migrate 4"
-      mig.setup_for_migrate
-      p "Migrate.migrate 5"
-      mig.migrate
-      p "Migrate.migrate 5 END"
+      # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成、migrate実行
+      mig.process
     end
 
     # migrationのスクリプトをファイル出力する
-    def self.output_script(mig, db_scheme_ary)
+    def output_all_script(mig, db_scheme_ary)
       # スキーマ設定配列から、migrate用のスクリプトを作成する
       db_scheme_ary.map { |x| mig.make_script_group(x) }.flatten(1).each_with_index do |data, index|
         idy = (index + 1) * FILENAME_COUNTER_STEP
         mig.output_script(idy, *data)
       end
-    end
-
-    # relationを表すクラス定義のファイルの内容を生成
-    def self.make_content_array(mig, db_scheme_ary)
-      # スキーマ設定配列から、relationのmigrate用のスクリプトの内容(ハッシュ形式)の配列を作成する
-      relations = db_scheme_ary.map do |x|
-        mig.make_relation(x, "count")
-      end
-      relations.select { |x| x.size.positive? }
     end
 
     # migrate用のスクリプトの内容をテンプレートから作成し、ファイルに出力し、migrateを実行する
@@ -86,7 +48,7 @@ module Arxutils_Sqlite3
       #attr_reader :dbinit
 
       # migrate用のスクリプトの生成、migrateの実行を行うmigratexの生成
-      def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, opts)
+      def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, db_scheme_ary, opts)
         # DB接続までの初期化を行うDbinitクラスのインスタンス
         @dbinit = Dbutil::Dbinit.new(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, opts)
         # 生成するDB構成情報ファイルパス
@@ -100,6 +62,81 @@ module Arxutils_Sqlite3
         @src_path = Arxutils_Sqlite3::TEMPLATE_RELATION_DIR
         # 構成ファイル格納ディレクトリ
         @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
+        # データベーススキーマ定義配列
+        @db_scheme_ary = db_scheme_ary
+        # オプション指定
+        @opts = opts
+      end
+
+      # マイグレート用スクリプト、DB構成情報ファイル、DBファイルの削除
+      def delete_migrate_config_and_db
+        migrate_dir = @dbinit.migrate_dir
+        dest_config_dir = @dbinit.dest_config_dir
+        db_dir = @dbinit.db_dir
+
+        FileUtils.rm(Dir.glob(File.join(migrate_dir, "*"))) if migrate_dir
+        FileUtils.rm(Dir.glob(File.join(dest_config_dir, "*")))
+        Dir.glob(File.join(db_dir, "*")).each do |x|
+          # puts x
+          FileUtils.rm(x) if File.file?(x)
+        end
+      end
+
+      # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成、migrate実行
+      def process
+        # migrationのスクリプトをファイル出力する
+        output_all_script
+
+        # relationを表すクラス定義のファイルの内容を生成
+        content_array = make_content_array
+        p "content_array=#{content_array}"
+        # 複数形のクラス名を集める
+        count_class_plurals = content_array.reject do |x|
+          x[:need_count_class_plural].nil?
+        end
+        p "count_class_plurals=#{count_class_plurals}"
+        need_count_class_plural = count_class_plurals.map { |x| x[:need_count_class_plural] }
+        p "need_count_class_plural.size=#{need_count_class_plural.size}"
+        p "need_count_class_plural=#{need_count_class_plural}"
+        # relationのmigrateが必要であれば、それをテンプレートファイルから作成して、スクリプトの内容として追加する
+        if content_array.find { |x| !x.nil? }
+          p "####### 1"
+          data_count = {
+            count_classname: "Count",
+            need_count_class_plural: need_count_class_plural
+          }
+          p "data_count=#{data_count}"
+          ary = content_array.collect { |x| x[:content] }.flatten
+          count_content = convert_count_class_relation(data_count, "relation_count.tmpl")
+          ary.unshift(count_content)
+          content_array = ary
+        end
+p "content_array=#{content_array}"
+        # relationのスクリプトを作成
+        output_relation_script(content_array, @opts[:relation])
+
+        # migrate準備
+        setup_for_migrate
+        # migrate実行
+        migrate
+      end
+
+      # migrationのスクリプトをファイル出力する
+      def output_all_script
+        # スキーマ設定配列から、migrate用のスクリプトを作成する
+        @db_scheme_ary.map { |x| make_script_group(x) }.flatten(1).each_with_index do |data, index|
+          idy = (index + 1) * FILENAME_COUNTER_STEP
+          output_script(idy, *data)
+        end
+      end
+
+      # relationを表すクラス定義のファイルの内容を生成
+      def make_content_array
+        # スキーマ設定配列から、relationのmigrate用のスクリプトの内容(ハッシュ形式)の配列を作成する
+        relations = @db_scheme_ary.map do |x|
+          make_relation(x, "count")
+        end
+        relations.select { |x| x.size.positive? }
       end
 
       # Countクラス用のrelationのスクリプトの内容に変換
@@ -151,10 +188,10 @@ module Arxutils_Sqlite3
       # スキーマ設定からmigarte用スクリプトの内容を生成
       def make_script_group(data)
         #p data
-        data[:flist].map { 
-          |kind| 
-          [kind, 
-            convert(data, @src_path, "#{kind}.tmpl"), 
+        data[:flist].map {
+          |kind|
+          [kind,
+            convert(data, @src_path, "#{kind}.tmpl"),
             data[:classname_downcase]
             ] }
       end
@@ -188,24 +225,15 @@ module Arxutils_Sqlite3
         end
       end
 
-      
-      # migrateを実行する
+      # migrate準備
       def setup_for_migrate
         # データベース接続とログ設定
         Dbutil::DbMgr.setup(@dbinit)
       end
-      # migrateを実行する
+      # migrate実行
       def migrate
-        p "Migratex#migrate 1"
-        # ActiveRecord::Migrator.migrate(@migrate_dir ,  ENV["VERSION"] ? ENV["VERSION"].to_i : nil )
-        # ActiveRecord::Migrator.new.migrate(@migrate_dir ,  ENV["VERSION"] ? ENV["VERSION"].to_i : nil )
-        # ActiveRecord::Migrator.current_version
         db_migrate_dir = File.join(Dbutil::DB_DIR, Dbutil::MIGRATE_DIR)
         ActiveRecord::MigrationContext.new(db_migrate_dir, ActiveRecord::SchemaMigration).up
-        # p ActiveRecord::Migrator.migration_paths
-        # p ActiveRecord::Migrator.SchemaMigration
-        # ActiveRecord::Migrator.new.migrate(@migrate_dir)
-        p "Migratex#migrate 1 END"
       end
     end
   end

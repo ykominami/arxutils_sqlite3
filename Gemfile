@@ -8,11 +8,11 @@ gemspec
 gem "simpleoptparse"
 #gem "ykutils"
 #gem "ykutils" , :path => "C:\Users\ykomi\cur\ruby\ykutils"
-gem "ykutils" , :path => "../ykutils"
+#gem "ykutils" , :path => "../ykutils"
 #gem "ykutils" , :github => "ykominami/ykutils"
-#gem "ykutils" , "> 0.1.3"
-#gem "ykxutils", "> 0.1.0"
-gem "ykxutils", :path => "../ykxutils"
+gem "ykutils" , "> 0.1.3"
+gem "ykxutils", "> 0.1.0"
+#gem "ykxutils", :path => "../ykxutils"
 
 gem "activesupport"
   # spec.add_runtime_dependency "erb"
@@ -22,20 +22,20 @@ gem "sqlite3"
   # spec.add_runtime_dependency "mysql2" , "~> 0.4.1"
 gem "encx"
 
-  # spec.add_development_dependency "bundler", "~> 2.2.10"
+# spec.add_development_dependency "bundler", "~> 2.2.10"
+gem "rake", "~> 13.0"
+gem "rspec", "~> 3.0"
+
+gem "rubocop", "~> 1.7"
+gem "rubocop-rake"
+gem "rubocop-rspec"
 
 group :development do
-	gem "rake", "~> 13.0"
 
 	gem "yard"
 end
 
 group :test do
-	gem "rspec", "~> 3.0"
-
-	gem "rubocop", "~> 1.7"
-	gem "rubocop-rake"
-	gem "rubocop-rspec"
 end
 
 

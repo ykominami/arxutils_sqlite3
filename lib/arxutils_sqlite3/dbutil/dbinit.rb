@@ -37,7 +37,7 @@ module Arxutils_Sqlite3
       # 参照用DB構成情報ファイル名
       attr_accessor :dbconfig_src_fname
       # migrate用スクリプトの出力先ディレクトリ名
-      attr_accessor :migrate_dir
+      attr_accessor :migrate_dir, :dest_config_dir, :db_dir
 
       # DB接続までの初期化に必要なディレクトリの確認、作成
       def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, opts)
@@ -69,27 +69,13 @@ module Arxutils_Sqlite3
         FileUtils.mkdir_p(@db_dir) if @db_dir
         FileUtils.mkdir_p(@migrate_dir) if @migrate_dir
         FileUtils.mkdir_p(@dest_config_dir)
-        # remigrateが指定されれば、migrate用スクリプトとDB構成ファイルを削除する
-        return if opts["migrate_cmd"] != "remigrate"
-
-        FileUtils.rm(Dir.glob(File.join(@migrate_dir, "*"))) if @migrate_dir
-        FileUtils.rm(Dir.glob(File.join(@dest_config_dir, "*")))
       end
 
-      # DB接続し、DB用ログファイルの設定
+      # DB接続、DB用ログファイルの設定
       def setup
-        # p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
-        # dbconfig = Ykxutils.yaml_load_file_compati(File.read(@dbconfig_dest_path))
-        p "Dbinit#setup 0"
-        p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
         dbconfig = Ykxutils.yaml_load_file_compati(@dbconfig_dest_path)
-        p "Dbinit#setup 1"
-        p dbconfig
-        p "Dbinit#setup 2"
         ActiveRecord::Base.establish_connection(dbconfig[@env])
-        p "Dbinit#setup 3"
         ActiveRecord::Base.logger = Logger.new(@log_path)
-        p "Dbinit#setup 4"
       end
     end
   end

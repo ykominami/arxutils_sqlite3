@@ -1,13 +1,18 @@
 task default: %w[setup makeconfig migrate integrate]
 
+task cmi: %w[makeconfig migrate integrate]
+
+# コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリプトファイルの生成
 task :setup do
   sh "bundle exec ruby bin/arxutils-cli --cmd=s --klass=Enop"
 end
 
+# DB構成情報の生成
 task :makeconfig do
   sh "bundle exec ruby bin/arxutils-cli --cmd=c"
 end
 
+# マイグレート用スクリプトファイルの生成とマイグレートの実行
 task :migrate do
   sh "bundle exec ruby bin/arxutils-cli --cmd=m --yaml=config/db_scheme.yml"
 end
@@ -16,6 +21,6 @@ task :integrate do
   sh "bundle exec ruby bin/arxutils-cli --cmd=i"
 end
 
-task :remigrate do
-  sh "bundle exec ruby bin/arxutils-cli --cmd=r -y config/db_scheme.yml"
+task :delete do
+  sh "bundle exec ruby bin/arxutils-cli --cmd=d"
 end
