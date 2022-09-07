@@ -80,9 +80,16 @@ module Arxutils_Sqlite3
       def setup
         # p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
         # dbconfig = Ykxutils.yaml_load_file_compati(File.read(@dbconfig_dest_path))
+        p "Dbinit#setup 0"
+        p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
         dbconfig = Ykxutils.yaml_load_file_compati(@dbconfig_dest_path)
+        p "Dbinit#setup 1"
+        p dbconfig
+        p "Dbinit#setup 2"
         ActiveRecord::Base.establish_connection(dbconfig[@env])
+        p "Dbinit#setup 3"
         ActiveRecord::Base.logger = Logger.new(@log_path)
+        p "Dbinit#setup 4"
       end
     end
   end

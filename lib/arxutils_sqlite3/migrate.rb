@@ -16,25 +16,19 @@ module Arxutils_Sqlite3
 
     # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
     def self.migrate(db_dir, src_config_dir, log_fname, migrate_dir, env, db_scheme_ary, dbconfig, opts)
+      p "Migrate.migrate 1 class"
       log_file_name = format("%s-%s", dbconfig.to_s, log_fname)
-      exit
-      p "#### Migrate.migrate 1"
       mig = Migratex.new(db_dir, migrate_dir, src_config_dir, dbconfig, env, log_file_name, opts)
       # DB構成情報の生成
       # dbconfigのテンプレートは内容が固定である。
-      exit
-      p "#### Migrate.migrate 2"
-      if  opts["migrate_cmd"] =="makeconfig"
+      if  opts["migrate_cmd"] == "makeconfig"
         mig.make_dbconfig(opts)
         return
       end
-      p "#### Migrate.migrate 3"
+      p "Migrate.migrate 2 class"
 
       output_script(mig, db_scheme_ary)
-      p "#### Migrate.migrate 4"
       content_array = make_content_array(mig, db_scheme_ary)
-      exit
-      p "#### Migrate.migrate 5"
       # 複数形のクラス名を集める
       count_class_plurals = content_array.reject do |x|
         x[:need_count_class_plural].nil?
@@ -52,23 +46,20 @@ module Arxutils_Sqlite3
         ary.unshift(count_content)
         content_array = ary
       end
-      p "#### Migrate.migrate 6"
-      exit
+      p "Migrate.migrate 3"
       # relationのスクリプトを作成
       mig.output_relation_script(content_array, opts[:relation])
-      p "#### Migrate.migrate 7"
-      exit
 
-      dbinit = mig.dbinit
-      p "#### Migrate.migrate 7-2"
-      exit
-      # データベース接続とログ設定
-      ::Arxutils_Sqlite3::Dbutil::DbMgr.setup(dbinit)
+      #p "Migrate.migrate 4"
+      #dbinit = mig.dbinit
+      #p dbinit
+      #p "Migrate.migrate 5"
 
-      p "#### Migrate.migrate 8"
-      # migrateを実行する
+      p "Migrate.migrate 4"
+      mig.setup_for_migrate
+      p "Migrate.migrate 5"
       mig.migrate
-      p "#### Migrate.migrate 9"
+      p "Migrate.migrate 5 END"
     end
 
     # migrationのスクリプトをファイル出力する
@@ -92,7 +83,7 @@ module Arxutils_Sqlite3
     # migrate用のスクリプトの内容をテンプレートから作成し、ファイルに出力し、migrateを実行する
     class Migratex
       # DB接続までの初期化を行うDbinitクラスのインスタンス
-      attr_reader :dbinit
+      #attr_reader :dbinit
 
       # migrate用のスクリプトの生成、migrateの実行を行うmigratexの生成
       def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, opts)
@@ -159,7 +150,7 @@ module Arxutils_Sqlite3
 
       # スキーマ設定からmigarte用スクリプトの内容を生成
       def make_script_group(data)
-        p data
+        #p data
         data[:flist].map { 
           |kind| 
           [kind, 
@@ -197,8 +188,15 @@ module Arxutils_Sqlite3
         end
       end
 
+      
+      # migrateを実行する
+      def setup_for_migrate
+        # データベース接続とログ設定
+        Dbutil::DbMgr.setup(@dbinit)
+      end
       # migrateを実行する
       def migrate
+        p "Migratex#migrate 1"
         # ActiveRecord::Migrator.migrate(@migrate_dir ,  ENV["VERSION"] ? ENV["VERSION"].to_i : nil )
         # ActiveRecord::Migrator.new.migrate(@migrate_dir ,  ENV["VERSION"] ? ENV["VERSION"].to_i : nil )
         # ActiveRecord::Migrator.current_version
@@ -207,6 +205,7 @@ module Arxutils_Sqlite3
         # p ActiveRecord::Migrator.migration_paths
         # p ActiveRecord::Migrator.SchemaMigration
         # ActiveRecord::Migrator.new.migrate(@migrate_dir)
+        p "Migratex#migrate 1 END"
       end
     end
   end

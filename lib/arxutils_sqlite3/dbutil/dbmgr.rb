@@ -10,16 +10,19 @@ module Arxutils_Sqlite3
       @ret = nil
       # Dbinitクラスのインスタンス生成とDB接続、現在日時取得
       def self.init(db_dir, migrate_dir, config_dir, dbconfig, env, log_fname, opts)
-        p "DbMgr.init dbconfig=#{dbconfig}"
         dbinit = Dbinit.new(db_dir, migrate_dir, config_dir, dbconfig, env, log_fname, opts)
         setup(dbinit)
       end
 
       # DB接続、現在日時取得
       def self.setup(dbinit)
+        p "DbMgr.setup 1 @ret=#{@ret}"
         unless @ret
+          p "DbMgr.setup 2"
           begin
+            p "DbMgr.setup 3"
             dbinit.setup
+            p "DbMgr.setup 4"
             @ret = DateTime.now.new_offset
           rescue StandardError => e
             pp e.class
@@ -27,6 +30,7 @@ module Arxutils_Sqlite3
             pp e.backtrace
           end
         end
+        p "DbMgr.setup 5"
 
         @ret
       end
