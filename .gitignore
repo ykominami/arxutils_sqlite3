@@ -1,3 +1,4 @@
+*.gemspec.*
 Rakefile.*
 /Gemfile.lock
 /checksums/
