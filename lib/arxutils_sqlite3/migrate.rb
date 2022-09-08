@@ -48,8 +48,7 @@ module Arxutils_Sqlite3
 
       # migrate用のスクリプトの生成、migrateの実行を行うmigratexの生成
       def initialize(dbconnect, db_scheme_ary, relation, opts)
-#     def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, db_scheme_ary, opts)
-          # DB接続までの初期化を行うDbinitクラスのインスタンス
+        # DB接続までの初期化を行うDbinitクラスのインスタンス
         @dbconnect = dbconnect
         # 生成するDB構成情報ファイルパス
         @dbconfig_dest_path = @dbconnect.dbconfig_dest_path
@@ -96,10 +95,7 @@ module Arxutils_Sqlite3
         count_class_plurals = content_array.reject do |x|
           x[:need_count_class_plural].nil?
         end
-        # p "count_class_plurals=#{count_class_plurals}"
         need_count_class_plural = count_class_plurals.map { |x| x[:need_count_class_plural] }
-        # p "need_count_class_plural.size=#{need_count_class_plural.size}"
-        # p "need_count_class_plural=#{need_count_class_plural}"
         # relationのmigrateが必要であれば、それをテンプレートファイルから作成して、スクリプトの内容として追加する
         if content_array.find { |x| !x.nil? }
           # p "####### 1"
@@ -113,10 +109,8 @@ module Arxutils_Sqlite3
           ary.unshift(count_content)
           content_array = ary
         end
-# p "content_array=#{content_array}"
         # relationのスクリプトを作成
         output_relation_script(content_array, @relation)
-#        output_relation_script(content_array, @opts[:relation])
       end
 
       # migrationのスクリプトをファイル出力する
