@@ -130,5 +130,5 @@ when "d"
   db_scheme_ary = nil
   dbconnect = prepare_for_migrate(env, db_scheme_ary, opts)
 else
-  raise
+  puts "Invalid command(#{opts["cmd"]}) specified!!"
 end
