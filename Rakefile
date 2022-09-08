@@ -1,26 +1,12 @@
-task default: %w[setup makeconfig migrate integrate]
+# frozen_string_literal: true
 
-task cmi: %w[makeconfig migrate integrate]
+require "bundler/gem_tasks"
+require "rspec/core/rake_task"
 
-# コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリプトファイルの生成
-task :setup do
-  sh "bundle exec ruby bin/arxutils-cli --cmd=s --klass=Enop"
-end
+RSpec::Core::RakeTask.new(:spec)
 
-# DB構成情報の生成
-task :makeconfig do
-  sh "bundle exec ruby bin/arxutils-cli --cmd=c"
-end
+require "rubocop/rake_task"
 
-# マイグレート用スクリプトファイルの生成とマイグレートの実行
-task :migrate do
-  sh "bundle exec ruby bin/arxutils-cli --cmd=m --yaml=config/db_scheme.yml"
-end
+RuboCop::RakeTask.new
 
-task :integrate do
-  sh "bundle exec ruby bin/arxutils-cli --cmd=i"
-end
-
-task :delete do
-  sh "bundle exec ruby bin/arxutils-cli --cmd=d"
-end
+task default: %i[spec rubocop]
