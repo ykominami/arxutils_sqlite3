@@ -152,7 +152,8 @@ module Arxutils_Sqlite3
       # データベース構成ファイルをテンプレートから生成する
       def make_dbconfig(data)
         content = convert(data, @src_config_path, @dbconfig_src_fname)
-        File.open(@dbconfig_dest_path, "w", { encoding: Encoding::UTF_8 }) do |f|
+        File.open(
+          @dbconfig_dest_path, "w:utf-8") do |f|
           f.puts(content)
         end
       end

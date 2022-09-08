@@ -21,7 +21,6 @@ bin/makemigrate
 db/*.log
 bin/*.erb
 bin/a.rb
-config/*
 /config2/
 a.bat
 /db/*.sqlite3
