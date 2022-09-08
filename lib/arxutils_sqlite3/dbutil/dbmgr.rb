@@ -8,12 +8,6 @@ module Arxutils_Sqlite3
     class DbMgr
       # DB接続の状態を示す
       @ret = nil
-      # Dbinitクラスのインスタンス生成とDB接続、現在日時取得
-      def self.init(db_dir, migrate_dir, config_dir, dbconfig, env, log_fname, opts)
-        dbinit = Dbinit.new(db_dir, migrate_dir, config_dir, dbconfig, env, log_fname, opts)
-        setup(dbinit)
-      end
-
       # DB接続、現在日時取得
       def self.setup(dbinit)
         unless @ret

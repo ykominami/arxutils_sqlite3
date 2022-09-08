@@ -8,7 +8,7 @@ default_env: &default
   adapter: sqlite3
   pool: 5
   timeout: 5000
-  database: <%= @data[:db_dir] %>/sqlite3.db
+  database: <%= @data[:db_dir] %>/production.sqlite3
 
 development:
   <<: *default

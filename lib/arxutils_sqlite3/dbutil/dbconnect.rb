@@ -31,16 +31,22 @@ end
 module Arxutils_Sqlite3
   module Dbutil
     # DB操作用ユーティリティクラス
-    class Dbinit
+    class Dbconnect
       # 生成するDB構成情報ファイルパス
       attr_accessor :dbconfig_dest_path
       # 参照用DB構成情報ファイル名
       attr_accessor :dbconfig_src_fname
       # migrate用スクリプトの出力先ディレクトリ名
-      attr_accessor :migrate_dir
+      attr_accessor :migrate_dir, :dest_config_dir, :db_dir
+
+      def self.make_log_file_name(dbconfig, log_file_base_name)
+        format("%s-%s", dbconfig.to_s, log_file_base_name)
+      end
 
       # DB接続までの初期化に必要なディレクトリの確認、作成
       def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, opts)
+        # 接続開始時刻
+        @connect_time = nil
         # DB格納ディレクトリ名
         @db_dir = db_dir
         # DB構成ファイルのテンプレート格納ディレクトリ
@@ -48,7 +54,7 @@ module Arxutils_Sqlite3
         # DB構成ファイルの出力先ディレクトリ
         @dest_config_dir = CONFIG_DIR
         # DB構成ファイル名
-        @dbconfig_dest_fname = "#{dbconfig}.yaml"
+        @dbconfig_dest_fname = "#{dbconfig}.yml"
         # DB構成ファイル用テンプレートファイル名
         @dbconfig_src_fname = "#{dbconfig}.tmpl"
         # DB構成ファイルへのパス
@@ -69,20 +75,20 @@ module Arxutils_Sqlite3
         FileUtils.mkdir_p(@db_dir) if @db_dir
         FileUtils.mkdir_p(@migrate_dir) if @migrate_dir
         FileUtils.mkdir_p(@dest_config_dir)
-        # remigrateが指定されれば、migrate用スクリプトとDB構成ファイルを削除する
-        return unless opts["remigate"]
-
-        FileUtils.rm(Dir.glob(File.join(@migrate_dir, "*"))) if @migrate_dir
-        FileUtils.rm(Dir.glob(File.join(@dest_config_dir, "*")))
       end
 
-      # DB接続し、DB用ログファイルの設定
-      def setup
-        # p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
-        # dbconfig = Ykxutils.yaml_load_file_compati(File.read(@dbconfig_dest_path))
-        dbconfig = Ykxutils.yaml_load_file_compati(@dbconfig_dest_path)
-        ActiveRecord::Base.establish_connection(dbconfig[@env])
-        ActiveRecord::Base.logger = Logger.new(@log_path)
+      # DB接続、DB用ログファイルの設定
+      def connect
+        unless @connect_time
+          begin
+            dbconfig = Ykxutils.yaml_load_file_compati(@dbconfig_dest_path)
+            ActiveRecord::Base.establish_connection(dbconfig[@env])
+            ActiveRecord::Base.logger = Logger.new(@log_path)
+            @connect_time = DateTime.now.new_offset
+          rescue => ex
+          end
+        end
+        @connect_time
       end
     end
   end

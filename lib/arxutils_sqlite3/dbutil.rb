@@ -1,5 +1,5 @@
-require_relative "dbutil/dbinit"
-require_relative "dbutil/dbmgr"
+require_relative "dbutil/dbconnect"
+#require_relative "dbutil/dbmgr"
 
 module Arxutils_Sqlite3
   # DB操作用ユーティリティクラス
