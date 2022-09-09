@@ -41,8 +41,7 @@ def prepare_for_migrate(env, db_scheme_ary, opts)
     Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
     opts["dbconfig"],
     env,
-    log_fname,
-    opts
+    log_fname
   )
   if opts["cmd"] != "i"
     Arxutils_Sqlite3::Migrate.migrate(dbconnect, db_scheme_ary, opts["migrate_cmd"], opts[:relation], opts)
