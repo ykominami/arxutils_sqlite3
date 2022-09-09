@@ -44,7 +44,7 @@ module Arxutils_Sqlite3
       end
 
       # DB接続までの初期化に必要なディレクトリの確認、作成
-      def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname, opts)
+      def initialize(db_dir, migrate_base_dir, src_config_dir, dbconfig, env, log_fname)
         # 接続開始時刻
         @connect_time = nil
         # DB格納ディレクトリ名
