@@ -31,41 +31,6 @@ if File.exist?(Arxutils_Sqlite3::DEST_DBSETUP_FILE)
   end
 end
 
-
-def prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_dest_path, opts)
-  migrate_base_dir = Arxutils_Sqlite3::Dbutil::MIGRATE_DIR
-  # migrate用スクリプト格納ディレクトリへのパス
-  migrate_dir = File.join(db_dir, migrate_base_dir)
-  # DB構成ファイルの出力先ディレクトリ
-  dest_config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
-  dbconfig_src_fname = "#{opts["dbconfig"]}.tmpl"
-  p "dbconfig_dest_path=#{dbconfig_dest_path}"
-  relation = opts[:relation]
-  mig = Arxutils_Sqlite3::Migrate.new(
-    dbconfig_dest_path,
-    dbconfig_src_fname,
-    migrate_dir,
-    db_dir,
-    db_scheme_ary,
-    relation,
-    opts)
-end
-
-def make_log_path(db_dir, dbconfig)
-  log_path = ""
-  log_fname = Arxutils_Sqlite3::Dbutil::Dbconnect.make_log_file_name(
-    dbconfig, Arxutils_Sqlite3::Dbutil::DATABASELOG)
-  if db_dir && log_fname
-    # DB用ログファイルへのパス
-    log_path = File.join(db_dir, log_fname)
-  end
-  log_path
-end
-
-def make_dbconfig_path(config_dir, dbconfig)
-  File.join( config_dir, "#{dbconfig}.yml")
-end
-
 banner = "Usage: bundle exec ruby exe/makemigrate --cmd=(s|c|m|i|d) -y yaml_file --klass=class"
 
 opts = @opts ? @opts : {}
@@ -103,9 +68,9 @@ when "c"
   db_dir = Arxutils_Sqlite3::Dbutil::DB_DIR
   config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
   # DB構成ファイル名
-  dbconfig_path = make_dbconfig_path(config_dir, opts["dbconfig"])
+  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
 
-  mig = prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
+  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
   mig.make_dbconfig(opts)
 
 when "m"
@@ -130,10 +95,10 @@ when "m"
 
   config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
   # DB構成ファイル名
-  dbconfig_path = make_dbconfig_path(config_dir, opts["dbconfig"])
+  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
   # DBログファイルへのパス
-  log_path = make_log_path(db_dir, opts["dbconfig"])
-  mig = prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
+  log_path = Arxutils_Sqlite3::Util.make_log_path(db_dir, opts["dbconfig"])
+  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
   mig.process
   dbconnect = Arxutils_Sqlite3::Dbutil::Dbconnect.new(
     dbconfig_path,
@@ -141,7 +106,7 @@ when "m"
     log_path
   )
   connect_time = dbconnect.connect
-  p "connect_time=#{connect_time}"
+  #p "connect_time=#{connect_time}"
   ActiveRecord::MigrationContext.new(mig.migrate_dir, ActiveRecord::SchemaMigration).up
 
 when "i"
@@ -151,9 +116,9 @@ when "i"
 
   config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
   # DB構成ファイルへのパス
-  dbconfig_dest_path = make_dbconfig_path(config_dir, opts["dbconfig"])
+  dbconfig_dest_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
   # DBログファイルへのパス
-  log_path = make_log_path(db_dir, opts["dbconfig"])
+  log_path = Arxutils_Sqlite3::Util.make_log_path(db_dir, opts["dbconfig"])
   dbconnect = Arxutils_Sqlite3::Dbutil::Dbconnect.new(
     dbconfig_dest_path,
     env,
@@ -165,12 +130,11 @@ when "i"
 
 when "d"
   db_scheme_ary = nil
-  mig = repare_for_migrate(env, db_scheme_ary, opts)
+  mig = Arxutils_Sqlite3::Util.repare_for_migrate(env, db_scheme_ary, opts)
   mig.delete_migrate_config_and_db
 
 else
   puts "Invalid command(#{opts["cmd"]}) specified!!"
 end
-
 #
 

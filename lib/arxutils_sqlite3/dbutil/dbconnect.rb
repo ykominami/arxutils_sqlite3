@@ -50,10 +50,10 @@ module Arxutils_Sqlite3
       def connect
         unless @connect_time
           begin
-            p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
+            #p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
             dbconfig = Ykxutils.yaml_load_file_compati(@dbconfig_dest_path)
-            p "dbconfig=#{dbconfig}"
-            p "@env=#{@env}"
+            #p "dbconfig=#{dbconfig}"
+            #p "@env=#{@env}"
             ActiveRecord::Base.establish_connection(dbconfig[@env])
             ActiveRecord::Base.logger = Logger.new(@log_path)
             @connect_time = DateTime.now.new_offset
