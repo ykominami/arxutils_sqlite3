@@ -18,22 +18,22 @@ task cmi: %w[makeconfig migrate integrate]
 # コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリ
 # プトファイルの生成
 task :setup do
-  sh "bundle exec ruby exe/arxutils_sqlite3 --cmd=s --klass=Enop"
+  sh "bundle exec arxutils_sqlite3 --cmd=s --klass=Enop"
 end
 # DB構成情報の生成
 task :makeconfig do
-  sh "bundle exec ruby exe/arxutils_sqlite3 --cmd=c"
+  sh "bundle exec arxutils_sqlite3 --cmd=c"
 end
 # マイグレート用スクリプトファイルの生成とマイグレートの実行
 task :migrate do
-  sh "bundle exec ruby exe/arxutils_sqlite3 --cmd=m --yaml=config/db_scheme.yml"
+  sh "bundle exec arxutils_sqlite3 --cmd=m --yaml=config/db_scheme.yml"
 end
 task :integrate do
-  sh "bundle exec ruby exe/arxutils_sqlite3 --cmd=i"
+  sh "bundle exec arxutils_sqlite3 --cmd=i"
 end
 
 task :delete do
-  sh "bundle exec ruby exe/arxutils_sqlite3 --cmd=d"
+  sh "bundle exec arxutils_sqlite3 --cmd=d"
 end
 
 #=end
