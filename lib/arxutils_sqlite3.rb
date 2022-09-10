@@ -15,6 +15,7 @@ require_relative "arxutils_sqlite3/hier"
 require_relative "arxutils_sqlite3/migrate"
 require_relative "arxutils_sqlite3/dbutil"
 require_relative "arxutils_sqlite3/migrate"
+require_relative "arxutils_sqlite3/util"
 
 module Arxutils_Sqlite3
   TOP_DIR = Pathname(__FILE__).parent
