@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
 
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
+  p spec.executables
   spec.require_paths = ["lib"]
   spec.add_runtime_dependency "activesupport"
   # spec.add_runtime_dependency "erb"
