@@ -15,7 +15,5 @@ module Arxutils_Sqlite3
     CONFIG_DIR = "config".freeze
     # データベース用ログファイル名
     DATABASELOG = "database.log".freeze
-
-    # DB接続までの初期化を行う
   end
 end
