@@ -24,6 +24,8 @@ module Arxutils_Sqlite3
   TEMPLATE_CONFIG_DIR = TEMPLATE_DIR.join( Dbutil::CONFIG_DIR )
   DB_SCHEME_DIR = TEMPLATE_RELATION_DIR.join("db_scheme")
   DB_SCHEME_FILE = DB_SCHEME_DIR.join("db_scheme.yml")
+  DB_SCHEME_FILE_NAME = "db_scheme.yml"
+  DB_SCHEME_FILE_NAME_2 = "db_scheme"
   OPTS_FILE_NAME = "opts.rb"
   OPTS_FILE_NAME_2 = "opts"
   DBSETUP_FILE_NAME = "dbsetup.rb"
@@ -35,6 +37,7 @@ module Arxutils_Sqlite3
   DEST_OPTS_FILE_2 = DEST_CONFIG_DIR.join(OPTS_FILE_NAME_2)
   DEST_DBSETUP_FILE = DEST_CONFIG_DIR.join(DBSETUP_FILE_NAME)
   DEST_DBSETUP_FILE_2 = DEST_CONFIG_DIR.join(DBSETUP_FILE_NAME_2)
+  DEST_DB_SCHEME_FILE = DEST_CONFIG_DIR.join(DB_SCHEME_FILE_NAME)
 
   class Error < StandardError; end
   # Your code goes here...

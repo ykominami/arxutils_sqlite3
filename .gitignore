@@ -27,3 +27,5 @@ bin/a.rb
 a.bat
 /db/*.sqlite3
 .ruby-version
+/_backup/
+

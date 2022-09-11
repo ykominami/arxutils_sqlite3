@@ -63,8 +63,8 @@ class Migrate
       end
     end
 
-    # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成、migrate実行
-    def process
+    # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成
+    def output
       # migrationのスクリプトをファイル出力する
       output_all_script
 
