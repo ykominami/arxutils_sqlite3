@@ -11,6 +11,7 @@ task default: :test
 =end
 
 #=begin
+# Defining a task called default that depends on the tasks setup, makeconfig, migrate, and integrate.
 task default: %w[setup makeconfig migrate integrate]
 
 task cmi: %w[makeconfig migrate integrate]
