@@ -14,7 +14,7 @@ task default: :test
 # Defining a task called default that depends on the tasks setup, makeconfig, migrate, and integrate.
 task default: %w[setup makeconfig migrate integrate]
 
-task cmi: %w[makeconfig migrate integrate]
+task scmi: %w[setup makeconfig migrate integrate]
 
 # コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリ
 # プトファイルの生成

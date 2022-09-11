@@ -1,22 +1,20 @@
 module Arxutils_Sqlite3
   class Util
     # migrateの準備
-    def self.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_dest_path, opts)
+    def self.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_dest_path, dbconfig, relation)
       migrate_base_dir = Dbutil::MIGRATE_DIR
       # migrate用スクリプト格納ディレクトリへのパス
       migrate_dir = File.join(db_dir, migrate_base_dir)
       # DB構成ファイルの出力先ディレクトリ
-      dest_config_dir = Dbutil::CONFIG_DIR
-      dbconfig_src_fname = "#{opts["dbconfig"]}.tmpl"
-      relation = opts[:relation]
+      dbconfig_src_fname = "#{dbconfig}.tmpl"
       mig = Migrate.new(
         dbconfig_dest_path,
         dbconfig_src_fname,
         migrate_dir,
         db_dir,
         db_scheme_ary,
-        relation,
-        opts)
+        relation
+        )
     end
 
     # DBログファイルへのパスの作成
@@ -33,12 +31,7 @@ module Arxutils_Sqlite3
 
     # DB構成ファイルへのパスの作成
     def self.make_dbconfig_path(config_dir, dbconfig)
-
-      File.join(
-
-        config_dir,
-
-        "#{dbconfig}.yml")
+      File.join(config_dir, "#{dbconfig}.yml")
     end
   end
 end

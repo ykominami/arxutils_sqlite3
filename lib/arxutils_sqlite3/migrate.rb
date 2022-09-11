@@ -24,8 +24,8 @@ class Migrate
       migrate_dir,
       db_dir,
       db_scheme_ary,
-      relation,
-      opts)
+      relation
+      )
       # DB格納ディレクトリ名
       @db_dir = db_dir
       # DB構成ファイルの出力先ディレクトリ
@@ -45,8 +45,6 @@ class Migrate
       @db_scheme_ary = db_scheme_ary
       # リレーション指定
       @relation = relation
-      # オプション指定
-      @opts = opts
 
       FileUtils.mkdir_p(@db_dir) if @db_dir
       FileUtils.mkdir_p(@migrate_dir) if @migrate_dir
@@ -184,19 +182,17 @@ class Migrate
     end
 
     # relationのスクリプトをファイル出力する
-    def output_relation_script(content_array, opts)
-      # pp "=="
-      # pp opts
-      dir = opts[:dir]
-      fname = opts[:filename]
+    def output_relation_script(content_array, relation)
+      dir = relation[:dir]
+      fname = relation[:filename]
       fpath = File.join(dir, fname)
       File.open(fpath, "w") do |file|
-        opts[:module].map { |mod| file.puts("module #{mod}") }
+        relation[:module].map { |mod| file.puts("module #{mod}") }
         content_array.map do |x|
           file.puts x
           file.puts ""
         end
-        opts[:module].map { |_mod| file.puts("end") }
+        relation[:module].map { |_mod| file.puts("end") }
       end
     end
   end
