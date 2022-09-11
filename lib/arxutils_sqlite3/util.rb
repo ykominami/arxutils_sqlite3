@@ -34,7 +34,6 @@ module Arxutils_Sqlite3
     # DB構成ファイルへのパスの作成
     def self.make_dbconfig_path(config_dir, dbconfig)
 
-      #p "config_dir=#{config_dir}"
       File.join(
 
         config_dir,
