@@ -88,7 +88,7 @@ when "c"
     puts banner
     exit 30
   end
-  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
+  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts["dbconfig"], opts["replation"])
   mig.make_dbconfig(opts)
 
 when "m"
@@ -122,7 +122,7 @@ when "m"
   dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
   # DBログファイルへのパス
   log_path = Arxutils_Sqlite3::Util.make_log_path(db_dir, opts["dbconfig"])
-  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
+  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts["dbconfig"], opts[:relation])
   # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成
   mig.output
 
@@ -160,7 +160,7 @@ when "d"
   # DB構成ファイル名
   config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
   dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
-  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts)
+  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts["dbconfig"], opts["replation"])
   mig.delete_migrate_config_and_db
 
 else
