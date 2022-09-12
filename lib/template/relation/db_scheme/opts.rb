@@ -1,5 +1,5 @@
 @opts = {
-  db_dir: Arxutils_Sqlite3::Dbutil::DB_DIR,
+  db_dir: Arxutils_Sqlite3::Config::DB_DIR,
   relation: {
     module: %w[<%= klass %> Dbutil],
     filename: "dbrelation.rb",

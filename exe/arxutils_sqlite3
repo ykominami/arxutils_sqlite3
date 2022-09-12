@@ -6,14 +6,9 @@ require "pp"
 require "ykutils"
 require "ykxutils"
 
-if File.exist?(Arxutils_Sqlite3::DEST_OPTS_FILE)
-  opts_file = File.join("./" , Arxutils_Sqlite3::DEST_OPTS_FILE_2.to_s)
-  begin
-    require opts_file
-  rescue LoadError => ex
-    pp ex.message
-  end
-end
+config = Arxutils_Sqlite3::Config.new
+
+config.require_opts_file
 
 begin
   require "dbrelation"
@@ -21,21 +16,18 @@ rescue LoadError => ex
   pp ex.message
 end
 
+
+klass = nil
+setting = config.load_setting_yaml_file
+klass = setting[:klass]
+
 # DBセットアップクラス
-if File.exist?(Arxutils_Sqlite3::DEST_DBSETUP_FILE)
-  dbsetup_file = File.join("./" , Arxutils_Sqlite3::DEST_DBSETUP_FILE_2.to_s)
-  begin
-    require dbsetup_file
-  rescue LoadError => ex
-    pp ex.message
-  end
-end
+config.require_dbsetup_file
 
 banner = "Usage: bundle exec ruby exe/makemigrate --cmd=(s|c|m|i|d) -y yaml_file --klass=class"
 
 opts = @opts ? @opts : {}
-
-opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3
+opts["dbconfig"] = Arxutils_Sqlite3::Config::DBCONFIG_SQLITE3
 
 Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
   parser.on("--cmd X", %w[s c m i d]) { |x| opts["cmd"] = x }
@@ -48,123 +40,70 @@ env ||= "production"
 
 case opts["cmd"]
 when "s"
-  if File.exist?(Arxutils_Sqlite3::DEST_OPTS_FILE)
-    puts "#{Arxutils_Sqlite3::DEST_OPTS_FILE} exists!"
-    puts banner
-    exit 10
-  end
-
-  if File.exist?(Arxutils_Sqlite3::DEST_DB_SCHEME_FILE)
-    puts "#{Arxutils_Sqlite3::DEST_DB_SCHEME_FILE} exists!"
-    puts banner
-    exit 15
-  end
+  config.check_file_exist(Arxutils_Sqlite3::Config::DEST_OPTS_FILE, banner, 10)
 
   if opts["klass"].nil? || opts["klass"].strip == ""
     puts banner
     exit 20
   end
-
-  FileUtils.mkdir_p(Arxutils_Sqlite3::Dbutil::CONFIG_DIR)
-  FileUtils.cp(Arxutils_Sqlite3::DB_SCHEME_FILE,  Arxutils_Sqlite3::DEST_DB_SCHEME_FILE)
-
-  scope = Object.new
-  hash = {klass: opts["klass"]}
-  result_content = Ykutils::Erubyx.erubi_render_with_template_file(Arxutils_Sqlite3::OPTS_FILE, scope, hash)
-
-  File.open(Arxutils_Sqlite3::DEST_OPTS_FILE, "w"){|file|
-    file.write(result_content)
-  }
+  klass = opts["klass"]
+  config.make_config_directory
+  config.setup_db_scheme_file
+  config.setup_opts_file(klass)
+  config.setup_setting_yaml_file(klass)
   db_scheme_ary = nil
 
 when "c"
   db_scheme_ary = nil
-  db_dir = Arxutils_Sqlite3::Dbutil::DB_DIR
-  config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
-  # DB構成ファイル名
-  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
-  if File.exist?(dbconfig_path)
-    puts "#{dbconfig_path} exists!"
-    puts banner
-    exit 30
-  end
-  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts["dbconfig"], opts["replation"])
+  dbconfig = opts["dbconfig"]
+  replation = opts["replation"]
+  dbconfig_path = config.make_dbconfig_path(dbconfig)
+  config.check_file_exist(dbconfig_path, banner, 30)
+  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
   mig.make_dbconfig(opts)
 
 when "m"
-  if opts["yaml"].nil? || opts["yaml"].strip == ""
+  yaml_fname = opts["yaml"]
+  relation = opts[:relation]
+  dbconfig = opts["dbconfig"]
+
+  if yaml_fname.nil? || yaml_fname.strip == ""
     puts banner
     exit 40
   end
+  yaml_pn = Pathname.new(yaml_fname)
+  config.check_file_not_exist(yaml_pn, banner, 55)
+  db_scheme_ary = YAML.load_file( yaml_pn )
 
-  if File.exist?(Arxutils_Sqlite3::DEST_DBSETUP_FILE)
-    puts "#{Arxutils_Sqlite3::DEST_DBSETUP_FILE} exist!"
-    puts banner
-    exit 50
-  end
+  dest_dbsetup_file = config.get_dest_dbsetup_file
+  config.check_file_exist(dest_dbsetup_file, banner, 50)
 
-  opts["migrate_cmd"] = "migrate"
-  db_scheme_ary = YAML.load_file( opts["yaml"] )
+  config.make_dbsetup_file(db_scheme_ary, relation, klass, dest_dbsetup_file)
 
-  scope = Object.new
+  connect_time = Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(config, dbconfig, env)
 
-  hash0 = {module_name: opts[:relation][:module].join("::")}
-  hash = db_scheme_ary[0].merge( hash0 )
-  result_content = Ykutils::Erubyx.erubi_render_with_template_file(Arxutils_Sqlite3::DBSETUP_FILE, scope, hash)
-
-  File.open(Arxutils_Sqlite3::DEST_DBSETUP_FILE, "w"){|file|
-    file.write(result_content)
-  }
-  db_dir = Arxutils_Sqlite3::Dbutil::DB_DIR
-
-  config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
-  # DB構成ファイル名
-  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
-  # DBログファイルへのパス
-  log_path = Arxutils_Sqlite3::Util.make_log_path(db_dir, opts["dbconfig"])
-  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts["dbconfig"], opts[:relation])
   # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成
+  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, relation)
   mig.output
 
-  dbconnect = Arxutils_Sqlite3::Dbutil::Dbconnect.new(
-    dbconfig_path,
-    env,
-    log_path
-  )
-  connect_time = dbconnect.connect
-  #p "connect_time=#{connect_time}"
+  # マイグレーション実行
   ActiveRecord::MigrationContext.new(mig.migrate_dir, ActiveRecord::SchemaMigration).up
 
 when "i"
-  #db_scheme_ary = YAML.load_file( opts["yaml"] )
-  db_scheme_ary = nil
-  db_dir = Arxutils_Sqlite3::Dbutil::DB_DIR
-
-  config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
-  # DB構成ファイルへのパス
-  dbconfig_dest_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
-  # DBログファイルへのパス
-  log_path = Arxutils_Sqlite3::Util.make_log_path(db_dir, opts["dbconfig"])
-  dbconnect = Arxutils_Sqlite3::Dbutil::Dbconnect.new(
-    dbconfig_dest_path,
-    env,
-    log_path
-  )
-  connect_time = dbconnect.connect
-
+  dbconfig = opts["dbconfig"]
+  connect_time = Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(config, dbconfig, env)
   Dbsetup.new(connect_time)
 
 when "d"
   db_scheme_ary = nil
-  db_dir = Arxutils_Sqlite3::Dbutil::DB_DIR
-  # DB構成ファイル名
-  config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
-  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, opts["dbconfig"])
-  mig = Arxutils_Sqlite3::Util.prepare_for_migrate(env, db_scheme_ary, db_dir, dbconfig_path, opts["dbconfig"], opts["replation"])
+  dbconfig = opts["dbconfig"]
+  replation = opts["replation"]
+
+  config_dir = config.get_config_dir
+  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, dbconfig)
+  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
   mig.delete_migrate_config_and_db
 
 else
   puts "Invalid command(#{opts["cmd"]}) specified!!"
 end
-#
-

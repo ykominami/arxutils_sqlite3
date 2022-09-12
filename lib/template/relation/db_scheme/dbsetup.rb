@@ -1,7 +1,7 @@
 class Dbsetup
   def initialize(connect_time)
     @connect_time = connect_time
-    @ct = <%= module_name %>::<%= classname %>.create( <%= classname_downcase %>: @connect_time )
+    @ct = <%= klass %>::Dbutil::Countdatetime.create( countdatetime: @connect_time )
     @hs_by_notebook = {}
     @hs_by_id = {}
   end

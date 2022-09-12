@@ -12,7 +12,23 @@ task default: :test
 
 #=begin
 # Defining a task called default that depends on the tasks setup, makeconfig, migrate, and integrate.
-task default: %w[setup makeconfig migrate integrate]
+task default: %w[delete setup makeconfig migrate integrate]
+
+task scmi: %w[setup makeconfig migrate integrate]
+
+task dsc: %w[delete setup makeconfig]
+
+task ds: %w[delete setup]
+
+task s: %w[setup]
+
+task sc: %w[setup makeconfig]
+
+task dscm: %w[delete setup makeconfig migrate]
+
+task scm: %w[setup makeconfig migrate]
+
+task dscmi: %w[delete setup makeconfig migrate integrate]
 
 task scmi: %w[setup makeconfig migrate integrate]
 
