@@ -10,7 +10,7 @@ require "pp"
 module Arxutils_Sqlite3
 ##
 # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
-class Migrate
+  class Migrate
     attr_reader :migrate_dir
     # migrate用スクリプトファイル名の先頭の番号の間隔
     FILENAME_COUNTER_STEP = 10
@@ -19,32 +19,33 @@ class Migrate
 
     # migrate用のスクリプトの生成、migrateの実行を行うmigratexの生成
     def initialize(
+      config,
       dbconfig_dest_path,
       dbconfig_src_fname,
-      migrate_dir,
-      db_dir,
       db_scheme_ary,
-      relation
+      relation_config
       )
       # DB格納ディレクトリ名
-      @db_dir = db_dir
+      @db_dir = config.get_db_dir
       # DB構成ファイルの出力先ディレクトリ
-      @dest_config_dir = Arxutils_Sqlite3::Dbutil::CONFIG_DIR
+      @dest_config_dir = config.get_config_dir
       # 生成するDB構成情報ファイルパス
       @dbconfig_dest_path = dbconfig_dest_path
       # 参照用DB構成情報ファイル名
       @dbconfig_src_fname = dbconfig_src_fname
 
       # migrate用スクリプトの出力先ディレクトリ名
-      @migrate_dir = migrate_dir
+      @migrate_dir = config.get_migrate_dir
       # テンプレートファイル格納ディレクトリ名
-      @src_path = Arxutils_Sqlite3::TEMPLATE_RELATION_DIR
+      @src_path = config.get_template_relation_dir
+      #@src_path = Arxutils_Sqlite3::TEMPLATE_RELATION_DIR
       # 構成ファイル格納ディレクトリ
-      @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
+      @src_config_path = config.get_template_config_dir
+#      @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
       # データベーススキーマ定義配列
       @db_scheme_ary = db_scheme_ary
       # リレーション指定
-      @relation = relation
+      @relation_config = relation_config
 
       FileUtils.mkdir_p(@db_dir) if @db_dir
       FileUtils.mkdir_p(@migrate_dir) if @migrate_dir
@@ -88,7 +89,7 @@ class Migrate
         content_array = ary
       end
       # relationのスクリプトを作成
-      output_relation_script(content_array, @relation)
+      output_relation_script(content_array, @relation_config)
     end
 
     # migrationのスクリプトをファイル出力する
@@ -182,17 +183,17 @@ class Migrate
     end
 
     # relationのスクリプトをファイル出力する
-    def output_relation_script(content_array, relation)
-      dir = relation[:dir]
-      fname = relation[:filename]
+    def output_relation_script(content_array, relation_config)
+      dir = relation_config[:dir]
+      fname = relation_config[:filename]
       fpath = File.join(dir, fname)
       File.open(fpath, "w") do |file|
-        relation[:module].map { |mod| file.puts("module #{mod}") }
+        relation_config[:module].map { |mod| file.puts("module #{mod}") }
         content_array.map do |x|
           file.puts x
           file.puts ""
         end
-        relation[:module].map { |_mod| file.puts("end") }
+        relation_config[:module].map { |_mod| file.puts("end") }
       end
     end
   end

@@ -13,7 +13,6 @@ gem "simpleoptparse"
 gem "ykutils" , "> 0.1.3"
 gem "ykxutils", "> 0.1.0"
 #gem "ykxutils", :path => "../ykxutils"
-gen "arxutils_sqlite3"
 
 gem "activesupport"
   # spec.add_runtime_dependency "erb"
