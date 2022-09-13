@@ -1,5 +1,6 @@
 require "erb"
 require "ykutils"
+
 module Arxutils_Sqlite3
   # スキーマ設定に基づき、テンプレートから変換する
   class Arx
