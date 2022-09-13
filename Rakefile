@@ -32,6 +32,8 @@ task dscmi: %w[delete setup makeconfig migrate integrate]
 
 task scmi: %w[setup makeconfig migrate integrate]
 
+task mi: %w[migrate integrate]
+
 # コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリ
 # プトファイルの生成
 task :setup do
@@ -51,6 +53,10 @@ end
 
 task :delete do
   sh "bundle exec arxutils_sqlite3 --cmd=d"
+end
+
+task :delete_db do
+  sh "bundle exec arxutils_sqlite3 --cmd=b"
 end
 
 #=end

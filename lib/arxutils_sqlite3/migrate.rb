@@ -53,15 +53,36 @@ module Arxutils_Sqlite3
     end
 
     # マイグレート用スクリプト、DB構成情報ファイル、DBファイルの削除
-    def delete_migrate_config_and_db
+    def delete_migrate_and_config_and_db
       if @migrate_dir
         Dir.glob(File.join(@migrate_dir, "*")).each do |x|
           FileUtils.rm(x) if File.file?(x)
         end
       end
       Dir.glob(File.join(@dest_config_dir, "*")).each do |x|
-	FileUtils.rm(x) if File.file?(x)
+        FileUtils.rm(x) if File.file?(x)
       end
+      Dir.glob(File.join(@db_dir, "*")).each do |x|
+        # puts x
+        FileUtils.rm(x) if File.file?(x)
+      end
+    end
+
+    # マイグレート用スクリプト、DBファイルの削除
+    def delete_migrate_and_db
+      if @migrate_dir
+        Dir.glob(File.join(@migrate_dir, "*")).each do |x|
+          FileUtils.rm(x) if File.file?(x)
+        end
+      end
+      Dir.glob(File.join(@db_dir, "*")).each do |x|
+        # puts x
+        FileUtils.rm(x) if File.file?(x)
+      end
+    end
+
+    # DBファイルの削除
+    def delete_db
       Dir.glob(File.join(@db_dir, "*")).each do |x|
         # puts x
         FileUtils.rm(x) if File.file?(x)
