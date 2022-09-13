@@ -10,7 +10,6 @@ desc "Run test"
 task default: :test
 =end
 
-#=begin
 # Defining a task called default that depends on the tasks setup, makeconfig, migrate, and integrate.
 task default: %w[delete setup makeconfig migrate integrate]
 
@@ -43,6 +42,7 @@ task b: %w[delete_db]
 task :setup do
   sh "bundle exec arxutils_sqlite3 --cmd=s --klass=Enop"
 end
+
 # DB構成情報の生成
 task :makeconfig do
   sh "bundle exec arxutils_sqlite3 --cmd=c"
@@ -51,6 +51,7 @@ end
 task :migrate do
   sh "bundle exec arxutils_sqlite3 --cmd=m --yaml=config/db_scheme.yml"
 end
+
 task :integrate do
   sh "bundle exec arxutils_sqlite3 --cmd=i"
 end
@@ -63,5 +64,4 @@ task :delete_db do
   sh "bundle exec arxutils_sqlite3 --cmd=b"
 end
 
-#=end
 

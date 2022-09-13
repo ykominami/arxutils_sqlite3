@@ -112,6 +112,17 @@ when "b"
   # mig.delete_migrate_config_and_db
   mig.delete_db
 
+when "b"
+  db_scheme_ary = nil
+  dbconfig = opts["dbconfig"]
+  replation = opts["replation"]
+
+  config_dir = config.get_config_dir
+  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, dbconfig)
+  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
+  # mig.delete_migrate_config_and_db
+  mig.delete_db
+
 else
   puts "Invalid command(#{opts["cmd"]}) specified!!"
 end
