@@ -10,7 +10,6 @@ desc "Run test"
 task default: :test
 =end
 
-#=begin
 # Defining a task called default that depends on the tasks setup, makeconfig, migrate, and integrate.
 task default: %w[delete setup makeconfig migrate integrate]
 
@@ -32,11 +31,18 @@ task dscmi: %w[delete setup makeconfig migrate integrate]
 
 task scmi: %w[setup makeconfig migrate integrate]
 
+task mi: %w[migrate integrate]
+
+task bmi: %w[delete_db migrate integrate]
+
+task b: %w[delete_db]
+
 # コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリ
 # プトファイルの生成
 task :setup do
   sh "bundle exec arxutils_sqlite3 --cmd=s --klass=Enop"
 end
+
 # DB構成情報の生成
 task :makeconfig do
   sh "bundle exec arxutils_sqlite3 --cmd=c"
@@ -45,6 +51,7 @@ end
 task :migrate do
   sh "bundle exec arxutils_sqlite3 --cmd=m --yaml=config/db_scheme.yml"
 end
+
 task :integrate do
   sh "bundle exec arxutils_sqlite3 --cmd=i"
 end
@@ -53,5 +60,8 @@ task :delete do
   sh "bundle exec arxutils_sqlite3 --cmd=d"
 end
 
-#=end
+task :delete_db do
+  sh "bundle exec arxutils_sqlite3 --cmd=b"
+end
+
 
