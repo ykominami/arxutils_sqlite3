@@ -125,7 +125,7 @@ module Arxutils_Sqlite3
       if file_pn.exist?
         puts "#{file_pn} exists!"
         puts banner
-        exit 10
+        exit exit_code
       end
     end
 
@@ -134,7 +134,7 @@ module Arxutils_Sqlite3
       if !file_pn.exist?
         puts "#{file_pn} does not exists!"
         puts banner
-        exit 10
+        exit exit_code
       end
     end
     
