@@ -17,9 +17,9 @@ end
 AR_VERSION = 6.0
 TEST_DATA_DIR = Pathname(__FILE__).parent.join("test_data")
 
-# Migrate.migrateのテスト実行要メソッド
-class Makemigratex
-  def self.migrate(makeconfig, remigrate)
+# Migrate.migrateのテスト実行用メソッド
+class TestData
+  def self.setup
     db_scheme_ary = [
       {
         flist: %w[noitem],
@@ -61,31 +61,19 @@ class Makemigratex
     ]
 
     opts = {
-      db_dir: Arxutils_Sqlite3::Dbutil::DB_DIR,
+      db_dir: Arxutils_Sqlite3::Config::DB_DIR,
       relation: {
         module: %w[Enop Dbutil],
         filename: "dbrelation.rb",
         dir: "lib/arxutils_sqlite3/dbutil"
       }
     }
-    opts["makeconfig"] = !makeconfig.nil?
-    opts["remigrate"] = !remigrate.nil?
-
-    opts["dbconfig"] = Arxutils_Sqlite3::Dbutil::DBCONFIG_SQLITE3 unless opts["dbconfig"]
+    opts["dbconfig"] = Arxutils_Sqlite3::Config::DBCONFIG_SQLITE3 unless opts["dbconfig"]
 
     env = ENV.fetch("ENV", nil)
     # env ||= "development"
     env ||= "production"
 
-    Arxutils_Sqlite3::Migrate.migrate(
-      Arxutils_Sqlite3::Dbutil::DB_DIR,
-      Arxutils_Sqlite3::Dbutil::CONFIG_DIR,
-      Arxutils_Sqlite3::Dbutil::DATABASELOG,
-      Arxutils_Sqlite3::Dbutil::MIGRATE_DIR,
-      env,
-      db_scheme_ary,
-      opts["dbconfig"],
-      opts
-    )
+    [db_scheme_ary, opts, env]
   end
 end

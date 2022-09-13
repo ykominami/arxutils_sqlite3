@@ -16,6 +16,7 @@ end
 
 require_relative "arxutils_sqlite3/dbutil"
 require_relative "arxutils_sqlite3/config"
+require_relative "arxutils_sqlite3/cli"
 
 require_relative "arxutils_sqlite3/version"
 require_relative "arxutils_sqlite3/arx"

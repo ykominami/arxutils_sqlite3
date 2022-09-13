@@ -8,6 +8,8 @@ require "ykxutils"
 
 config = Arxutils_Sqlite3::Config.new
 
+cli = Arxutils_Sqlite3::Cli.new(config)
+
 config.require_opts_file
 
 begin
@@ -34,6 +36,7 @@ Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSI
   parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
   parser.on("--klass klass") { |x| opts["klass"] = x }
 end
+klass = opts["klass"] if opts["klass"]
 
 env = ENV.fetch("ENV", nil)
 env ||= "production"
@@ -46,21 +49,12 @@ when "s"
     puts banner
     exit 20
   end
-  klass = opts["klass"]
-  config.make_config_directory
-  config.setup_db_scheme_file
-  config.setup_opts_file(klass)
-  config.setup_setting_yaml_file(klass)
-  db_scheme_ary = nil
+  cli.setup(klass)
 
 when "c"
-  db_scheme_ary = nil
   dbconfig = opts["dbconfig"]
-  replation = opts["replation"]
-  dbconfig_path = config.make_dbconfig_path(dbconfig)
-  config.check_file_exist(dbconfig_path, banner, 30)
-  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
-  mig.make_dbconfig(opts)
+  relation = opts["relation"]
+  cli.makeconfig(dbconfig, relation, banner, 30, opts)
 
 when "m"
   yaml_fname = opts["yaml"]
@@ -72,57 +66,24 @@ when "m"
   end
   yaml_pn = Pathname.new(yaml_fname)
   config.check_file_not_exist(yaml_pn, banner, 55)
-  db_scheme_ary = YAML.load_file( yaml_pn )
 
-  dest_dbsetup_file = config.get_dest_dbsetup_file
-  config.make_dbsetup_file(db_scheme_ary, relation, klass, dest_dbsetup_file)
-
-  connect_time = Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(config, dbconfig, env)
-
-  # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成
-  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, relation)
-  mig.output
-
-  # マイグレーション実行
-  ActiveRecord::MigrationContext.new(mig.migrate_dir, ActiveRecord::SchemaMigration).up
+  cli.migrate(yaml_pn, relation, klass, dbconfig, env)
 
 when "i"
   dbconfig = opts["dbconfig"]
-  connect_time = Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(config, dbconfig, env)
-  Dbsetup.new(connect_time)
+  cli.integrate(dbconfig, env)
 
 when "d"
   db_scheme_ary = nil
   dbconfig = opts["dbconfig"]
-  replation = opts["replation"]
-
-  config_dir = config.get_config_dir
-  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, dbconfig)
-  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
-  mig.delete_migrate_and_config_and_db
+  relation = opts["relation"]
+  cli.delete(dbconfig, db_scheme_ary, relation)
 
 when "b"
   db_scheme_ary = nil
   dbconfig = opts["dbconfig"]
-  replation = opts["replation"]
-
-  config_dir = config.get_config_dir
-  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, dbconfig)
-  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
-  # mig.delete_migrate_config_and_db
-  mig.delete_db
-
-when "b"
-  db_scheme_ary = nil
-  dbconfig = opts["dbconfig"]
-  replation = opts["replation"]
-
-  config_dir = config.get_config_dir
-  dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, dbconfig)
-  mig = config.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, replation)
-  # mig.delete_migrate_config_and_db
-  mig.delete_db
-
+  relation = opts["relation"]
+  cli.delete_db(dbconfig, db_scheme_ary, relation)
 else
   puts "Invalid command(#{opts["cmd"]}) specified!!"
 end
