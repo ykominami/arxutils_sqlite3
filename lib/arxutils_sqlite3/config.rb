@@ -22,19 +22,22 @@ module Arxutils_Sqlite3
     # テンプレートディレクトリへのパス
     TEMPLATE_DIR = Arxutils_Sqlite3::TOP_DIR.join("template")
     # リレーションテンプレートディレクトリへのパス
-    TEMPLATE_RELATION_DIR = TEMPLATE_DIR.join("relation")
+    TEMPLATE_ACRECORD_DIR = TEMPLATE_DIR.join("acrecord")
     TEMPLATE_CONFIG_DIR = TEMPLATE_DIR.join( CONFIG_DIR )
-    DB_SCHEME_DIR = TEMPLATE_RELATION_DIR.join("db_scheme")
+    DB_SCHEME_DIR = TEMPLATE_ACRECORD_DIR.join("db_scheme")
     DB_SCHEME_FILE = DB_SCHEME_DIR.join("db_scheme.yml")
+    SAMPLE_DB_SCHEME_FILE = CONFIG_DIR.join("db_scheme.yml.sample")
     DB_SCHEME_FILE_NAME = "db_scheme.yml".freeze
     DB_SCHEME_FILE_NAME_2 = "db_scheme".freeze
     OPTS_FILE_NAME = "opts.rb".freeze
+    SAMPLE_OPTS_FILE_NAME = "opts.rb.sample".freeze
     OPTS_FILE_NAME_2 = "opts".freeze
     DBSETUP_FILE_NAME = "dbsetup.rb".freeze
     DBSETUP_FILE_NAME_2 = "dbsetup".freeze
     SETTING_YAML_FILE_NAME = "setting.yml".freeze
     DEST_CONFIG_DIR = Pathname.new( CONFIG_DIR )
     OPTS_FILE = DB_SCHEME_DIR.join(OPTS_FILE_NAME)
+    SAMPLE_OPTS_FILE = CONFIG_DIR.join(SAMPLE_OPTS_FILE_NAME)
     # 変換先Dbsetupクラス定義のRubyスクリプトファイルへのパス
     DBSETUP_FILE = DB_SCHEME_DIR.join(DBSETUP_FILE_NAME)
     # 変換先optsファイル(Rubyスクリプトファイル)へのパス
@@ -54,22 +57,42 @@ module Arxutils_Sqlite3
 
     # DB構成ファイル格納ディレクトリの作成
     def make_config_directory
+      p "config make_config_directory"
       FileUtils.mkdir_p(CONFIG_DIR)
     end
 
-    # DBスキームファイルのひな型コピー
+    # DBスキームファイルのサンプルファイルコピー
     def setup_db_scheme_file
-      FileUtils.cp(DB_SCHEME_FILE,  DEST_DB_SCHEME_FILE)
+      p "config setup_db_scheme_file"
+      p "DB_SCHEME_FILE=#{DB_SCHEME_FILE}"
+      p "SAMPLE_DB_SCHEME_FILE=#{SAMPLE_DB_SCHEME_FILE}"
+      FileUtils.cp(DB_SCHEME_FILE,  SAMPLE_DB_SCHEME_FILE)
     end
 
-    # optsファイル(Rubyスクリプトファイル)のrequire
+    # DBスキームファイルが存在しなければ、サンプルファイルをDBスキームファイルとしてコピー
+    def copy_db_scheme_file
+      if !File.exist?(DEST_DB_SCHEME_FILE)
+        FileUtils.cp(SAMPLE_DB_SCHEME_FILE,  DEST_DB_SCHEME_FILE)
+      end
+    end
+
+    # optsファイル(Rubyスクリプトファイル)のサンプルファイル書き込み
     def setup_opts_file(klass)
       scope = Object.new
       hash = {klass: klass}
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(OPTS_FILE, scope, hash)
-      File.open(DEST_OPTS_FILE, "w"){|file|
+      File.open(SAMPLE_OPTS_FILE, "w"){|file|
         file.write(result_content)
       }
+    end
+
+    # optsファイルが存在しなければ、サンプルファイルをoptsファイルとしてコピー
+    def copy_opts_file
+      if !File.exist?(DEST_OPTS_FILE)
+        p "exist? #{File.exist?(DEST_OPTS_FILE)}"
+        p "copy SAMPLE_OPTS_FILE(#{SAMPLE_OPTS_FILE}) to DEST_OPTS_FILE(#{DEST_OPTS_FILE})"
+        FileUtils.cp(SAMPLE_OPTS_FILE,  DEST_OPTS_FILE)
+      end
     end
 
     # setting.ymlへの出力
@@ -94,7 +117,7 @@ module Arxutils_Sqlite3
         begin
           require opts_file
         rescue LoadError => ex
-          pp ex.message
+          #pp ex.message
         end
       end
     end
@@ -116,7 +139,7 @@ module Arxutils_Sqlite3
       begin
         require dbsetup_file
       rescue LoadError => ex
-        pp ex.message
+        # pp ex.message
       end
     end
 
@@ -158,8 +181,8 @@ module Arxutils_Sqlite3
     end
 
     # リレーションテンプレートディレクトリへのパス
-    def get_template_relation_dir
-      TEMPLATE_RELATION_DIR
+    def get_template_acrecord_dir
+      TEMPLATE_ACRECORD_DIR
     end
 
     # テンプレートディレクトリへのパス
@@ -202,38 +225,40 @@ module Arxutils_Sqlite3
     end
 
     # migrate用スクリプトの生成
-    def make_migrate_script(db_scheme_ary, dbconfig_path, dbconfig, relation)
-      mig = Arxutils_Sqlite3::Util.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, relation)
-      # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成
+    def make_migrate_script(db_scheme_ary, dbconfig_path, dbconfig, acrecord)
+      mig = Arxutils_Sqlite3::Util.prepare_for_migrate(db_scheme_ary, dbconfig_path, dbconfig, acrecord)
+      # マイグレーション用スクリプトの生成、acrecordのクラス定義ファイルの生成
       mig.output
     end
 
     # migrateの準備
-    def prepare_for_migrate(db_scheme_ary, dbconfig_dest_path, dbconfig, relation)
+    def prepare_for_migrate(db_scheme_ary, dbconfig_dest_path, dbconfig, acrecord)
       #db_dir = config.DB_DIR
       db_dir = get_db_dir
-      migrate_dir = get_migrate_dir
       # DB構成ファイルの出力先ディレクトリ
       dbconfig_src_fname = "#{dbconfig}.tmpl"
+      # migrate用スクリプトの出力先ディレクトリ名
+      migrate_dir = get_migrate_dir
+
       mig = Migrate.new(
         self,
         dbconfig_dest_path,
         dbconfig_src_fname,
         db_scheme_ary,
-        relation
-        )
+        acrecord,
+        migrate_dir
+      )
     end
 
-    def make_dbsetup_file(db_scheme_ary, relation, klass, dest_dbsetup_file)
+    def make_dbsetup_file(db_scheme_ary, acrecord, klass, dest_dbsetup_file)
       src_dbsetup_file = get_src_dbsetup_file
 
       scope = Object.new
-      hash0 = {module_name: relation[:module].join("::")}
+      hash0 = {module_name: acrecord[:module].join("::")}
       hash = db_scheme_ary[0].merge( hash0 )
       hash["klass"] = klass
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(src_dbsetup_file, scope, hash)
 
-      #p "################ dest_dbsetup_file=#{dest_dbsetup_file}"
       File.open(dest_dbsetup_file, "w"){|file|
         file.write(result_content)
       }

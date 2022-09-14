@@ -18,7 +18,7 @@ module Arxutils_Sqlite3
       # :items
       #  フィールド名, 型, null許容 の配列
       # :plural
-      # :relation
+      # :acrecord
       @data = data
 
       # スキーマ設定の:itemsの値を展開後格納するためのStructクラス

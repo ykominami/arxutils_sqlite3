@@ -23,7 +23,8 @@ module Arxutils_Sqlite3
       dbconfig_dest_path,
       dbconfig_src_fname,
       db_scheme_ary,
-      relation_config
+      acrecord_config,
+      migrate_dir
       )
       # DB格納ディレクトリ名
       @db_dir = config.get_db_dir
@@ -34,18 +35,16 @@ module Arxutils_Sqlite3
       # 参照用DB構成情報ファイル名
       @dbconfig_src_fname = dbconfig_src_fname
 
-      # migrate用スクリプトの出力先ディレクトリ名
-      @migrate_dir = config.get_migrate_dir
       # テンプレートファイル格納ディレクトリ名
-      @src_path = config.get_template_relation_dir
-      #@src_path = Arxutils_Sqlite3::TEMPLATE_RELATION_DIR
+      @src_path = config.get_template_acrecord_dir
       # 構成ファイル格納ディレクトリ
       @src_config_path = config.get_template_config_dir
 #      @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
       # データベーススキーマ定義配列
       @db_scheme_ary = db_scheme_ary
       # リレーション指定
-      @relation_config = relation_config
+      @acrecord_config = acrecord_config
+      @migrate_dir = migrate_dir
 
       FileUtils.mkdir_p(@db_dir) if @db_dir
       FileUtils.mkdir_p(@migrate_dir) if @migrate_dir
@@ -89,12 +88,12 @@ module Arxutils_Sqlite3
       end
     end
 
-    # マイグレーション用スクリプトの生成、relationのクラス定義ファイルの生成
+    # マイグレーション用スクリプトの生成、acrecordのクラス定義ファイルの生成
     def output
       # migrationのスクリプトをファイル出力する
       output_all_script
 
-      # relationを表すクラス定義のファイルの内容を生成
+      # acrecordを表すクラス定義のファイルの内容を生成
       content_array = make_content_array
       # p "content_array=#{content_array}"
       # 複数形のクラス名を集める
@@ -102,7 +101,7 @@ module Arxutils_Sqlite3
         x[:need_count_class_plural].nil?
       end
       need_count_class_plural = count_class_plurals.map { |x| x[:need_count_class_plural] }
-      # relationのmigrateが必要であれば、それをテンプレートファイルから作成して、スクリプトの内容として追加する
+      # acrecordのmigrateが必要であれば、それをテンプレートファイルから作成して、スクリプトの内容として追加する
       if content_array.find { |x| !x.nil? }
         # p "####### 1"
         data_count = {
@@ -111,12 +110,12 @@ module Arxutils_Sqlite3
         }
         # p "data_count=#{data_count}"
         ary = content_array.collect { |x| x[:content] }.flatten
-        count_content = convert_count_class_relation(data_count, "relation_count.tmpl")
+        count_content = convert_count_class_acrecord(data_count, "acrecord_count.tmpl")
         ary.unshift(count_content)
         content_array = ary
       end
-      # relationのスクリプトを作成
-      output_relation_script(content_array, @relation_config)
+      # acrecordのスクリプトを作成
+      output_acrecord_script(content_array, @acrecord_config)
     end
 
     # migrationのスクリプトをファイル出力する
@@ -128,17 +127,17 @@ module Arxutils_Sqlite3
       end
     end
 
-    # relationを表すクラス定義のファイルの内容を生成
+    # acrecordを表すクラス定義のファイルの内容を生成
     def make_content_array
-      # スキーマ設定配列から、relationのmigrate用のスクリプトの内容(ハッシュ形式)の配列を作成する
-      relations = @db_scheme_ary.map do |x|
-        make_relation(x, "count")
+      # スキーマ設定配列から、acrecordのmigrate用のスクリプトの内容(ハッシュ形式)の配列を作成する
+      acrecords = @db_scheme_ary.map do |x|
+        make_acrecord(x, "count")
       end
-      relations.select { |x| x.size.positive? }
+      acrecords.select { |x| x.size.positive? }
     end
 
-    # Countクラス用のrelationのスクリプトの内容に変換
-    def convert_count_class_relation(data, src_fname)
+    # Countクラス用のacrecordのスクリプトの内容に変換
+    def convert_count_class_acrecord(data, src_fname)
       convert(data, @src_path, src_fname)
     end
 
@@ -158,23 +157,23 @@ module Arxutils_Sqlite3
       end
     end
 
-    # 英子文字で表現したクラス名が、countを表していなければ、relationを
+    # 英子文字で表現したクラス名が、countを表していなければ、acrecordを
     # 英子文字で表現したクラス名が、countを表していれが、空のハッシュを返す
-    # スキーマでbase, noitem以外のフィールドが指定されていれば、そのフィールドに対するrelationの設定の内容を返す
-    def make_relation(data, count_classname_downcase)
+    # スキーマでbase, noitem以外のフィールドが指定されていれば、そのフィールドに対するacrecordの設定の内容を返す
+    def make_acrecord(data, count_classname_downcase)
       if data[:classname_downcase] == count_classname_downcase
         {}
       else
-        # 指定フィールドのフィールド名に対応したテンプレートファイルを用いて、relation設定を作成
+        # 指定フィールドのフィールド名に対応したテンプレートファイルを用いて、acrecord設定を作成
         data[:flist].each_with_object({ content: [], need_count_class: nil }) do |field_name, s|
           case field_name
           when "base", "noitem"
-            name_base = "relation"
-            # data[:relation]がnilに設定されていたら改めて空の配列を設定
-            data[:relation] = [] unless data[:relation]
+            name_base = "acrecord"
+            # data[:acrecord]がnilに設定されていたら改めて空の配列を設定
+            data[:acrecord] = [] unless data[:acrecord]
           else
             data[:count_classname_downcase] = count_classname_downcase
-            name_base = "relation_#{field_name}"
+            name_base = "acrecord_#{field_name}"
             s[:need_count_class_plural] ||= data[:plural]
           end
           # テンプレートファイルからスクリプトの内容を作成
@@ -209,18 +208,18 @@ module Arxutils_Sqlite3
       end
     end
 
-    # relationのスクリプトをファイル出力する
-    def output_relation_script(content_array, relation_config)
-      dir = relation_config[:dir]
-      fname = relation_config[:filename]
+    # acrecordのスクリプトをファイル出力する
+    def output_acrecord_script(content_array, acrecord_config)
+      dir = acrecord_config[:dir]
+      fname = acrecord_config[:filename]
       fpath = File.join(dir, fname)
       File.open(fpath, "w") do |file|
-        relation_config[:module].map { |mod| file.puts("module #{mod}") }
+        acrecord_config[:module].map { |mod| file.puts("module #{mod}") }
         content_array.map do |x|
           file.puts x
           file.puts ""
         end
-        relation_config[:module].map { |_mod| file.puts("end") }
+        acrecord_config[:module].map { |_mod| file.puts("end") }
       end
     end
   end
