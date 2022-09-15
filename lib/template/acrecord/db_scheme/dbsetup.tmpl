@@ -13,7 +13,9 @@ class Dbsetup
       cur_ennblist = Currentennblist.where( notebook: notebook ).limit(1)
       if cur_ennblist.size == 0
         begin
-          ennblist = Ennblist.create( stack: stack, notebook: notebook , count: count, tag_count: tag_count , start_datetime: @register_time )
+          ennblist = Ennblist.create( stack: stack, notebook: notebook ,
+                                      count: count, tag_count: tag_count ,
+                                      start_datetime: @register_time )
           evnb = Evnb.create( time_id: @ct.id , ennb_id: ennblist.id )
         rescue => ex
           p ex.class

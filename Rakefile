@@ -18,4 +18,4 @@ RuboCop::RakeTask.new
 
 # task default: %i[spec rubocop]
 
-require "arxutils_sqlite3_rake_task"
+require "arxutils_sqlite3/rake_task"
