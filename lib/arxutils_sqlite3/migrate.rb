@@ -1,21 +1,22 @@
-#require "arxutils_sqlite3"
+# require "arxutils_sqlite3"
 require "ykutils"
 require "fileutils"
-#require "active_support"
+# require "active_support"
 require "active_record"
 require "active_record/migration"
 require "pp"
 
 # ActiveRecord用ユーティリティモジュール
 module Arxutils_Sqlite3
-##
-# migrateに必要なファイルをテンプレートから作成し、migarteを実行する
+  ##
+  # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
   class Migrate
     attr_reader :migrate_dir
+
     # migrate用スクリプトファイル名の先頭の番号の間隔
     FILENAME_COUNTER_STEP = 10
     # DB接続までの初期化を行うDbinitクラスのインスタンス
-    #attr_reader :dbinit
+    # attr_reader :dbinit
 
     # migrate用のスクリプトの生成、migrateの実行を行うmigratexの生成
     def initialize(
@@ -25,7 +26,9 @@ module Arxutils_Sqlite3
       db_scheme_ary,
       acrecord_config,
       migrate_dir
-      )
+    )
+      # アプリ構成情報
+      @config = config
       # DB格納ディレクトリ名
       @db_dir = config.get_db_dir
       # DB構成ファイルの出力先ディレクトリ
@@ -39,7 +42,7 @@ module Arxutils_Sqlite3
       @src_path = config.get_template_acrecord_dir
       # 構成ファイル格納ディレクトリ
       @src_config_path = config.get_template_config_dir
-#      @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
+      #      @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
       # データベーススキーマ定義配列
       @db_scheme_ary = db_scheme_ary
       # リレーション指定
@@ -59,7 +62,11 @@ module Arxutils_Sqlite3
         end
       end
       Dir.glob(File.join(@dest_config_dir, "*")).each do |x|
-        FileUtils.rm(x) if File.file?(x)
+        basename = File.basename(x)
+        ret = !@config.exclude_file?( basename )
+        ret_file = File.file?(x)
+        ret2 = (ret_file && ret)
+        FileUtils.rm(x) if ret2
       end
       Dir.glob(File.join(@db_dir, "*")).each do |x|
         # puts x
@@ -152,7 +159,8 @@ module Arxutils_Sqlite3
     def make_dbconfig(data)
       content = convert(data, @src_config_path, @dbconfig_src_fname)
       File.open(
-        @dbconfig_dest_path, "w:utf-8") do |f|
+        @dbconfig_dest_path, "w:utf-8"
+      ) do |f|
         f.puts(content)
       end
     end
@@ -185,23 +193,22 @@ module Arxutils_Sqlite3
 
     # スキーマ設定からmigarte用スクリプトの内容を生成
     def make_script_group(data)
-      #p data
-      data[:flist].map {
-        |kind|
+      # p data
+      data[:flist].map do |kind|
         [kind,
-          convert(data, @src_path, "#{kind}.tmpl"),
-          data[:classname_downcase]
-          ] }
+         convert(data, @src_path, "#{kind}.tmpl"),
+         data[:classname_downcase]]
+      end
     end
 
     # migrationのスクリプトをファイル出力する
     def output_script(idy, kind, content, classname_downcase)
       additional = case kind
-                    when "base", "noitem"
-                      ""
-                    else
-                      kind
-                    end
+                   when "base", "noitem"
+                     ""
+                   else
+                     kind
+                   end
       fname = File.join(@migrate_dir, format("%03d_create_%s%s.rb", idy, additional, classname_downcase))
       File.open(fname, "w", **{ encoding: Encoding::UTF_8 }) do |f|
         f.puts(content)

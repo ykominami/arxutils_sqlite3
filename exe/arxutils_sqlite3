@@ -10,7 +10,7 @@ config = Arxutils_Sqlite3::Config.new
 
 config.require_opts_file
 
-opts = @opts ? @opts : {}
+opts = @opts || {}
 
 acrecord = opts[:acrecord]
 if acrecord
@@ -18,15 +18,14 @@ if acrecord
   basename = File.basename(filename)
 
   begin
-    require "#{basename}"
-  rescue LoadError => ex
-    #pp ex.message
+    require basename.to_s
+  rescue LoadError
+    # pp ex.message
   end
 end
 
 opts[:db_dir] = Arxutils_Sqlite3::Config::DB_DIR
 
-klass = nil
 setting = config.load_setting_yaml_file
 klass = setting[:klass]
 
@@ -50,7 +49,7 @@ cli = Arxutils_Sqlite3::Cli.new(config, dbconfig, env)
 
 case opts["cmd"]
 when "s"
-  #config.check_file_exist(Arxutils_Sqlite3::Config::SAMPLE_DEST_OPTS_FILE, banner, 10)
+  # config.check_file_exist(Arxutils_Sqlite3::Config::SAMPLE_DEST_OPTS_FILE, banner, 10)
 
   if opts["klass"].nil? || opts["klass"].strip == ""
     puts banner

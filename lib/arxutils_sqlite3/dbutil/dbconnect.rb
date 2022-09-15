@@ -6,28 +6,6 @@ require "active_record"
 require "sqlite3"
 require "ykxutils"
 
-def require_x(path)
-  require path
-rescue StandardError => e
-  p "1 request_x"
-  p e
-rescue LoadError => e
-  p "21 request_x"
-  p e
-rescue NotImplementedError => e
-  p "22 request_x"
-  p e
-rescue SyntaxError => e
-  p "23 request_x"
-  p e
-rescue ScriptError => e
-  p "20 request_x"
-  p e
-rescue Exception => e
-  p "9 request_x"
-  p e
-end
-
 module Arxutils_Sqlite3
   module Dbutil
     # DB操作用ユーティリティクラス
@@ -64,14 +42,14 @@ module Arxutils_Sqlite3
       def connect
         unless @connect_time
           begin
-            #p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
+            # p "@dbconfig_dest_path=#{@dbconfig_dest_path}"
             dbconfig = Ykxutils.yaml_load_file_compati(@dbconfig_dest_path)
-            #p "dbconfig=#{dbconfig}"
-            #p "@env=#{@env}"
+            # p "dbconfig=#{dbconfig}"
+            # p "@env=#{@env}"
             ActiveRecord::Base.establish_connection(dbconfig[@env])
             ActiveRecord::Base.logger = Logger.new(@log_path)
             @connect_time = DateTime.now.new_offset
-          rescue => ex
+          rescue StandardError => ex
             p ex.message
           end
         end

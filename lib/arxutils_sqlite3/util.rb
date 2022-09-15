@@ -4,7 +4,8 @@ module Arxutils_Sqlite3
     def self.make_log_path(db_dir, dbconfig)
       log_path = ""
       log_fname = Dbutil::Dbconnect.make_log_file_name(
-        dbconfig, Config::DATABASELOG)
+        dbconfig, Config::DATABASELOG
+      )
       if db_dir && log_fname
         # DB用ログファイルへのパス
         log_path = File.join(db_dir, log_fname)
