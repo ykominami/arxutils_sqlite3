@@ -4,7 +4,6 @@ module Arxutils_Sqlite3
   ##
   # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
   class Config
-    EXCLUDE_FILES = %W!setting.yml!
     # DB格納ディレクトリ名
     DB_DIR = "db".freeze
     # migrate用スクリプト格納ディレクトリ名
@@ -58,6 +57,8 @@ module Arxutils_Sqlite3
     DB_PN = Pathname.new(DB_DIR)
     # migrateディレクトリへのパス
     MIGRATE_DIR = DB_PN.join(MIGRATE_BASE_DIR)
+
+    EXCLUDE_FILES = %w[SETTING_YAML_FILE_NAME].freeze
 
     # DB構成ファイル格納ディレクトリの作成
     def make_config_directory
@@ -259,8 +260,8 @@ module Arxutils_Sqlite3
       File.write(dest_dbsetup_file, result_content)
     end
 
-    def exclude_file?( fname )
-      EXCLUDE_FILES.index( fname ) != nil
+    def exclude_file?(fname)
+      EXCLUDE_FILES.index(fname) != nil
     end
   end
 end
