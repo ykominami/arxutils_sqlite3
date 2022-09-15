@@ -7,10 +7,10 @@ setting = config.load_setting_yaml_file
 klass = setting[:klass]
 
 desc "setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr"
-task arxutil_sqlite3: %w[setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr]
+task arxutils_sqlite3: %w[setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr]
 
 desc "delete setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr"
-task bootstrap: %w[delete arxutil_sqlite3]
+task bootstrap: %w[delete arxutils_sqlite3]
 
 desc "migrate acr"
 task ma: %w[migrate acr]
