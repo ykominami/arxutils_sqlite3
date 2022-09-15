@@ -8,15 +8,15 @@ module Arxutils_Sqlite3
     end
 
     def setup(klass)
-      p "make_config_directory"
+      # p "make_config_directory"
       @config.make_config_directory
-      p "setup_db_scheme_file"
+      # p "setup_db_scheme_file"
       @config.setup_db_scheme_file
-      p "setup_opts_file(#{klass})"
+      # p "setup_opts_file(#{klass})"
       @config.setup_opts_file(klass)
-      p "setup_setting_yaml_file(#{klass})"
+      # p "setup_setting_yaml_file(#{klass})"
       @config.setup_setting_yaml_file(klass)
-      #db_scheme_ary = nil
+      # db_scheme_ary = nil
     end
 
     def copy_db_scheme
@@ -29,23 +29,21 @@ module Arxutils_Sqlite3
       @config.copy_opts_file
     end
 
-    def makeconfig(acrecord, banner, exit_code, opts)
+    def makeconfig(acrecord, _banner, _exit_code, opts)
       db_scheme_ary = nil
       dbconfig_path = @config.make_dbconfig_path(@dbconfig)
-      #@config.check_file_exist(dbconfig_path, banner, exit_code)
+      # @config.check_file_exist(dbconfig_path, banner, exit_code)
       mig = @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, acrecord)
       mig.make_dbconfig(opts)
     end
 
     def setup_for_migrate(yaml_pn, acrecord, klass)
-      db_scheme_ary = YAML.load_file( yaml_pn )
+      db_scheme_ary = YAML.load_file(yaml_pn)
       dbconfig_path = @config.make_dbconfig_path(@dbconfig)
 
       dest_dbsetup_file = @config.get_dest_dbsetup_file
       @config.make_dbsetup_file(db_scheme_ary, acrecord, klass, dest_dbsetup_file)
 
-      # migrate用スクリプトの出力先ディレクトリ名
-      migrate_dir = @config.get_migrate_dir
       # マイグレーション用スクリプトの生成、acrecordのクラス定義ファイルの生成
       mig = @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, acrecord)
       mig.output
@@ -55,7 +53,7 @@ module Arxutils_Sqlite3
       # migrate用スクリプトの出力先ディレクトリ名
       migrate_dir = @config.get_migrate_dir
 
-      connect_time = Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(@config, @dbconfig, @env)
+      Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(@config, @dbconfig, @env)
 
       # マイグレーション実行
       ActiveRecord::MigrationContext.new(migrate_dir, ActiveRecord::SchemaMigration).up
@@ -83,7 +81,7 @@ module Arxutils_Sqlite3
 
     def rm_dbconfig
       dbconfig_path = @config.make_dbconfig_path(@dbconfig)
-      #p dbconfig_path
+      # p dbconfig_path
       FileUtils.rm_f(dbconfig_path)
     end
   end

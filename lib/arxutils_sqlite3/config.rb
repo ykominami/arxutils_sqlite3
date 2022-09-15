@@ -4,6 +4,7 @@ module Arxutils_Sqlite3
   ##
   # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
   class Config
+    EXCLUDE_FILES = %W!setting.yml!
     # DB格納ディレクトリ名
     DB_DIR = "db".freeze
     # migrate用スクリプト格納ディレクトリ名
@@ -23,33 +24,36 @@ module Arxutils_Sqlite3
     TEMPLATE_DIR = Arxutils_Sqlite3::TOP_DIR.join("template")
     # リレーションテンプレートディレクトリへのパス
     TEMPLATE_ACRECORD_DIR = TEMPLATE_DIR.join("acrecord")
-    TEMPLATE_CONFIG_DIR = TEMPLATE_DIR.join( CONFIG_DIR )
+    TEMPLATE_CONFIG_DIR = TEMPLATE_DIR.join(CONFIG_DIR)
     DB_SCHEME_DIR = TEMPLATE_ACRECORD_DIR.join("db_scheme")
     DB_SCHEME_FILE = DB_SCHEME_DIR.join("db_scheme.yml")
     SAMPLE_DB_SCHEME_FILE = CONFIG_DIR.join("db_scheme.yml.sample")
     DB_SCHEME_FILE_NAME = "db_scheme.yml".freeze
-    DB_SCHEME_FILE_NAME_2 = "db_scheme".freeze
-    OPTS_FILE_NAME = "opts.rb".freeze
+    DB_SCHEME_FILE_NAME_B = "db_scheme".freeze
+    OPTS_FILE_NAME = "opts.tmpl".freeze
     SAMPLE_OPTS_FILE_NAME = "opts.rb.sample".freeze
-    OPTS_FILE_NAME_2 = "opts".freeze
-    DBSETUP_FILE_NAME = "dbsetup.rb".freeze
-    DBSETUP_FILE_NAME_2 = "dbsetup".freeze
+    OPTS_FILE_NAME_B = "opts".freeze
+    DEST_OPTS_FILE_NAME = "opts.rb".freeze
+    DEST_OPTS_FILE_NAME_B = "opts".freeze
+    DBSETUP_FILE_NAME = "dbsetup.tmpl".freeze
+    DBSETUP_FILE_NAME_B = "dbsetup".freeze
+    DEST_DBSETUP_FILE_NAME = "dbsetup.rb".freeze
     SETTING_YAML_FILE_NAME = "setting.yml".freeze
-    DEST_CONFIG_DIR = Pathname.new( CONFIG_DIR )
+    DEST_CONFIG_DIR = Pathname.new(CONFIG_DIR)
     OPTS_FILE = DB_SCHEME_DIR.join(OPTS_FILE_NAME)
     SAMPLE_OPTS_FILE = CONFIG_DIR.join(SAMPLE_OPTS_FILE_NAME)
     # 変換先Dbsetupクラス定義のRubyスクリプトファイルへのパス
     DBSETUP_FILE = DB_SCHEME_DIR.join(DBSETUP_FILE_NAME)
     # 変換先optsファイル(Rubyスクリプトファイル)へのパス
-    DEST_OPTS_FILE = DEST_CONFIG_DIR.join(OPTS_FILE_NAME)
-    DEST_OPTS_FILE_2 = DEST_CONFIG_DIR.join(OPTS_FILE_NAME_2)
+    DEST_OPTS_FILE = DEST_CONFIG_DIR.join(DEST_OPTS_FILE_NAME)
+    DEST_OPTS_FILE_B = DEST_CONFIG_DIR.join(OPTS_FILE_NAME_B)
     # 変換先Dbsetupクラス定義のRubyスクリプトファイルへのパス
-    DEST_DBSETUP_FILE = DEST_CONFIG_DIR.join(DBSETUP_FILE_NAME)
+    DEST_DBSETUP_FILE = DEST_CONFIG_DIR.join(DEST_DBSETUP_FILE_NAME)
     # 変換先Dbsetupクラス定義のRubyスクリプトファイル(拡張子無し)へのパス
-    DEST_DBSETUP_FILE_2 = DEST_CONFIG_DIR.join(DBSETUP_FILE_NAME_2)
+    DEST_DBSETUP_FILE_B = DEST_CONFIG_DIR.join(DBSETUP_FILE_NAME_B)
     DEST_DB_SCHEME_FILE = DEST_CONFIG_DIR.join(DB_SCHEME_FILE_NAME)
     # 変換後DBスキームファイル(拡張子無し)へのパス
-    DEST_DB_SCHEME_FILE_2 = DEST_CONFIG_DIR.join(DB_SCHEME_FILE_NAME_2)
+    DEST_DB_SCHEME_FILE_B = DEST_CONFIG_DIR.join(DB_SCHEME_FILE_NAME_B)
     SETTING_YAML_FILE = CONFIG_DIR.join(SETTING_YAML_FILE_NAME)
     DB_PN = Pathname.new(DB_DIR)
     # migrateディレクトリへのパス
@@ -57,51 +61,47 @@ module Arxutils_Sqlite3
 
     # DB構成ファイル格納ディレクトリの作成
     def make_config_directory
-      p "config make_config_directory"
+      # p "config make_config_directory"
       FileUtils.mkdir_p(CONFIG_DIR)
     end
 
     # DBスキームファイルのサンプルファイルコピー
     def setup_db_scheme_file
-      p "config setup_db_scheme_file"
-      p "DB_SCHEME_FILE=#{DB_SCHEME_FILE}"
-      p "SAMPLE_DB_SCHEME_FILE=#{SAMPLE_DB_SCHEME_FILE}"
-      FileUtils.cp(DB_SCHEME_FILE,  SAMPLE_DB_SCHEME_FILE)
+      # p "config setup_db_scheme_file"
+      # p "DB_SCHEME_FILE=#{DB_SCHEME_FILE}"
+      # p "SAMPLE_DB_SCHEME_FILE=#{SAMPLE_DB_SCHEME_FILE}"
+      FileUtils.cp(DB_SCHEME_FILE, SAMPLE_DB_SCHEME_FILE)
     end
 
     # DBスキームファイルが存在しなければ、サンプルファイルをDBスキームファイルとしてコピー
     def copy_db_scheme_file
-      if !File.exist?(DEST_DB_SCHEME_FILE)
-        FileUtils.cp(SAMPLE_DB_SCHEME_FILE,  DEST_DB_SCHEME_FILE)
-      end
+      return if File.exist?(DEST_DB_SCHEME_FILE)
+
+      FileUtils.cp(SAMPLE_DB_SCHEME_FILE, DEST_DB_SCHEME_FILE)
     end
 
     # optsファイル(Rubyスクリプトファイル)のサンプルファイル書き込み
     def setup_opts_file(klass)
       scope = Object.new
-      hash = {klass: klass}
+      hash = { klass: klass }
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(OPTS_FILE, scope, hash)
-      File.open(SAMPLE_OPTS_FILE, "w"){|file|
-        file.write(result_content)
-      }
+      File.write(SAMPLE_OPTS_FILE, result_content)
     end
 
     # optsファイルが存在しなければ、サンプルファイルをoptsファイルとしてコピー
     def copy_opts_file
-      if !File.exist?(DEST_OPTS_FILE)
-        p "exist? #{File.exist?(DEST_OPTS_FILE)}"
-        p "copy SAMPLE_OPTS_FILE(#{SAMPLE_OPTS_FILE}) to DEST_OPTS_FILE(#{DEST_OPTS_FILE})"
-        FileUtils.cp(SAMPLE_OPTS_FILE,  DEST_OPTS_FILE)
-      end
+      return if File.exist?(DEST_OPTS_FILE)
+
+      # p "exist? #{File.exist?(DEST_OPTS_FILE)}"
+      # p "copy SAMPLE_OPTS_FILE(#{SAMPLE_OPTS_FILE}) to DEST_OPTS_FILE(#{DEST_OPTS_FILE})"
+      FileUtils.cp(SAMPLE_OPTS_FILE, DEST_OPTS_FILE)
     end
 
     # setting.ymlへの出力
     def setup_setting_yaml_file(klass)
-      hash = { "klass": klass }
+      hash = { klass: klass }
       content = YAML.dump(hash)
-      File.open(SETTING_YAML_FILE, "w"){|file|
-        file.write(content)
-      }
+      File.write(SETTING_YAML_FILE, content)
     end
 
     # DB構成ファイルの作成
@@ -112,13 +112,13 @@ module Arxutils_Sqlite3
 
     # optsファイル(Rubyスクリプトファイル)のrequire
     def require_opts_file
-      if DEST_OPTS_FILE.exist?
-        opts_file = File.join("./" , DEST_OPTS_FILE_2.to_s)
-        begin
-          require opts_file
-        rescue LoadError => ex
-          #pp ex.message
-        end
+      return unless DEST_OPTS_FILE.exist?
+
+      opts_file = File.join("./", DEST_OPTS_FILE_B.to_s)
+      begin
+        require opts_file
+      rescue LoadError
+        # pp ex.message
       end
     end
 
@@ -127,40 +127,38 @@ module Arxutils_Sqlite3
       setting = {}
       # settingファイル
       setting_yaml_file = SETTING_YAML_FILE
-      if setting_yaml_file.exist?
-        setting = YAML.load_file( setting_yaml_file )
-      end
+      setting = YAML.load_file(setting_yaml_file) if setting_yaml_file.exist?
       setting
     end
 
     # Dbsetupファイル(Rubyスクリプトファイル)のrequire
     def require_dbsetup_file
-      dbsetup_file = File.join(".", get_dest_dbsetup_file_2.to_s)
+      dbsetup_file = File.join(".", get_dest_dbsetup_file_b.to_s)
       begin
         require dbsetup_file
-      rescue LoadError => ex
+      rescue LoadError
         # pp ex.message
       end
     end
 
     # 指定ファイルの存在確認
     def check_file_exist(file_pn, banner, exit_code)
-      if file_pn.exist?
-        puts "#{file_pn} exists!"
-        puts banner
-        exit exit_code
-      end
+      return unless file_pn.exist?
+
+      puts "#{file_pn} exists!"
+      puts banner
+      exit exit_code
     end
 
     # 指定ファイルの非存在確認
     def check_file_not_exist(file_pn, banner, exit_code)
-      if !file_pn.exist?
-        puts "#{file_pn} does not exists!"
-        puts banner
-        exit exit_code
-      end
+      return if file_pn.exist?
+
+      puts "#{file_pn} does not exists!"
+      puts banner
+      exit exit_code
     end
-    
+
     # 変換先optsファイル(Rubyスクリプトファイル)へのパス
     def get_dest_opts_file
       DEST_OPTS_FILE
@@ -175,6 +173,7 @@ module Arxutils_Sqlite3
     def get_migrate_dir
       MIGRATE_DIR
     end
+
     # コンフィグディレクトリへのパス
     def get_config_dir
       CONFIG_DIR
@@ -201,13 +200,13 @@ module Arxutils_Sqlite3
     end
 
     # 変換先Dbsetupクラス定義のRubyスクリプトファイル(拡張子無し)へのパス
-    def get_dest_dbsetup_file_2
-      DEST_DBSETUP_FILE_2
+    def get_dest_dbsetup_file_b
+      DEST_DBSETUP_FILE_B
     end
 
     # 変換後DBスキームファイル名(拡張子無し)
     def get_dest_db_scheme_file
-      DEST_DB_SCHEME_FILE_2
+      DEST_DB_SCHEME_FILE_B
     end
 
     # DBログファイルの作成
@@ -233,14 +232,12 @@ module Arxutils_Sqlite3
 
     # migrateの準備
     def prepare_for_migrate(db_scheme_ary, dbconfig_dest_path, dbconfig, acrecord)
-      #db_dir = config.DB_DIR
-      db_dir = get_db_dir
       # DB構成ファイルの出力先ディレクトリ
       dbconfig_src_fname = "#{dbconfig}.tmpl"
       # migrate用スクリプトの出力先ディレクトリ名
       migrate_dir = get_migrate_dir
 
-      mig = Migrate.new(
+      Migrate.new(
         self,
         dbconfig_dest_path,
         dbconfig_src_fname,
@@ -254,14 +251,16 @@ module Arxutils_Sqlite3
       src_dbsetup_file = get_src_dbsetup_file
 
       scope = Object.new
-      hash0 = {module_name: acrecord[:module].join("::")}
-      hash = db_scheme_ary[0].merge( hash0 )
+      hash0 = { module_name: acrecord[:module].join("::") }
+      hash = db_scheme_ary[0].merge(hash0)
       hash["klass"] = klass
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(src_dbsetup_file, scope, hash)
 
-      File.open(dest_dbsetup_file, "w"){|file|
-        file.write(result_content)
-      }
+      File.write(dest_dbsetup_file, result_content)
+    end
+
+    def exclude_file?( fname )
+      EXCLUDE_FILES.index( fname ) != nil
     end
   end
 end

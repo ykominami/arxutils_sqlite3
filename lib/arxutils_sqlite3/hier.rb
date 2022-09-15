@@ -142,10 +142,10 @@ module Arxutils_Sqlite3
       hier = @hier_klass.find_by(child_id: num)
       level = hier.level
       parent_id = hier.parent_id
-      base = @base_klass.find_by(ord_id: num)
+      # base = @base_klass.find_by(ord_id: num)
 
-      parent_base = @base_klass.find_by(ord_id: parent_id)
-      parent_hier_string = parent_base.__send__ @hier_symbol
+      # parent_base = @base_klass.find_by(ord_id: parent_id)
+      # parent_hier_string = parent_base.__send__ @hier_symbol
 
       # 属する子を探す
       children_hier = @hier_klass.where(parent_id: num)
