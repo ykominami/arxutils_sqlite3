@@ -1,6 +1,5 @@
 *.gemspec.*
 Rakefile.*
-/Gemfile.lock
 /checksums/
 /vendor/
 /.git_2/
