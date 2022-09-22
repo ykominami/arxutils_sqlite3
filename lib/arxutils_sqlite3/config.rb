@@ -59,6 +59,11 @@ module Arxutils_Sqlite3
     MIGRATE_DIR = DB_PN.join(MIGRATE_BASE_DIR)
 
     EXCLUDE_FILES = %w[SETTING_YAML_FILE_NAME].freeze
+    DEFAULT_KLASS = "Enop"
+
+    def default_klass
+      DEFAULT_KLASS
+    end
 
     # DB構成ファイル格納ディレクトリの作成
     def make_config_directory
