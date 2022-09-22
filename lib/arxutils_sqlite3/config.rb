@@ -58,11 +58,17 @@ module Arxutils_Sqlite3
     # migrateディレクトリへのパス
     MIGRATE_DIR = DB_PN.join(MIGRATE_BASE_DIR)
 
+    # 削除しないファイル群
     EXCLUDE_FILES = %w[SETTING_YAML_FILE_NAME].freeze
-    DEFAULT_KLASS = "Enop"
+    # 作成対象のActiveRecordの子クラスのデフォルトクラス名
+    DEFAULT_KLASS = "Xenop".freeze
 
     def default_klass
       DEFAULT_KLASS
+    end
+
+    def setting_yaml_file
+      SETTING_YAML_FILE
     end
 
     # DB構成ファイル格納ディレクトリの作成
