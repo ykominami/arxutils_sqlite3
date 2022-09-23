@@ -1,4 +1,4 @@
 module Arxutils_Sqlite3
   # バージョン番号
-  VERSION = "0.1.54".freeze
+  VERSION = "0.1.55".freeze
 end
