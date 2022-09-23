@@ -8,38 +8,18 @@ require "ykxutils"
 
 config = Arxutils_Sqlite3::Config.new
 
-config.require_opts_file
+opts, klass = config.setupx(self)
+# p opts
+# p klass
+# exit
 
-opts = @opts || {}
-
-acrecord = opts[:acrecord]
-if acrecord
-  filename = acrecord[:filename]
-  basename = File.basename(filename)
-
-  begin
-    require basename.to_s
-  rescue LoadError
-    # pp ex.message
-  end
-end
-
-opts[:db_dir] = Arxutils_Sqlite3::Config::DB_DIR
-
-setting = config.load_setting_yaml_file
-klass = setting[:klass]
-
-# DBセットアップクラス
-config.require_dbsetup_file
-
-banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|b) -y yaml_file --klass=class"
+banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|b|y) -y yaml_file --klass=class"
 
 Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
-  parser.on("--cmd X", %w[s cds co c f m a d b]) { |x| opts["cmd"] = x }
+  parser.on("--cmd X", %w[s cds co c f m a d b y]) { |x| opts["cmd"] = x }
   parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
   parser.on("--klass klass") { |x| opts["klass"] = x }
 end
-klass = opts["klass"] if opts["klass"]
 
 dbconfig = Arxutils_Sqlite3::Config::DBCONFIG_SQLITE3
 env = ENV.fetch("ENV", nil)
@@ -93,6 +73,9 @@ when "b"
   db_scheme_ary = nil
   acrecord = opts["acrecord"]
   cli.delete_db(db_scheme_ary, acrecord)
+
+when "y"
+  cli.delete_setting_yaml
 else
   puts "Invalid command(#{opts["cmd"]}) specified!!"
 end

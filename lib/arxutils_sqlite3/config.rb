@@ -71,18 +71,55 @@ module Arxutils_Sqlite3
       SETTING_YAML_FILE
     end
 
+    def dest_dbsetup_file_b
+      DEST_DBSETUP_FILE_B
+    end
+
+    def setupx(toplevel)
+      require_opts_file
+
+      opts = toplevel.instance_variable_get(:@opts) || {}
+
+      acrecord = opts[:acrecord]
+      if acrecord
+        filename = acrecord[:filename]
+        basename = File.basename(filename)
+
+        begin
+          require basename.to_s
+        rescue LoadError
+          # pp ex.message
+        end
+      end
+      opts[:db_dir] = Arxutils_Sqlite3::Config::DB_DIR
+
+      setting = load_setting_yaml_file
+      # p "setting=#{setting}"
+      klass = setting[:klass]
+      klass ||= DEFAULT_KLASS
+
+      # DBセットアップクラス
+      require_dbsetup_file
+
+      [opts, klass]
+    end
+
     # DB構成ファイル格納ディレクトリの作成
     def make_config_directory
       # p "config make_config_directory"
       FileUtils.mkdir_p(CONFIG_DIR)
     end
 
-    # DBスキームファイルのサンプルファイルコピー
-    def setup_db_scheme_file
+    # DBスキームファイルのサンプルファイコピー
+    def setup_db_scheme_file(klass)
       # p "config setup_db_scheme_file"
       # p "DB_SCHEME_FILE=#{DB_SCHEME_FILE}"
       # p "SAMPLE_DB_SCHEME_FILE=#{SAMPLE_DB_SCHEME_FILE}"
-      FileUtils.cp(DB_SCHEME_FILE, SAMPLE_DB_SCHEME_FILE)
+      scope = {}
+      value_hash = { klass: klass }
+      content = Ykutils::Erubyx.erubi_render_with_template_file(DB_SCHEME_FILE, scope, value_hash)
+      Ykxutils.yaml_load_compati(content)
+      File.write(SAMPLE_DB_SCHEME_FILE, content)
     end
 
     # DBスキームファイルが存在しなければ、サンプルファイルをDBスキームファイルとしてコピー
@@ -113,7 +150,13 @@ module Arxutils_Sqlite3
     def setup_setting_yaml_file(klass)
       hash = { klass: klass }
       content = YAML.dump(hash)
-      File.write(SETTING_YAML_FILE, content)
+      ret = :SUCCESS
+      begin
+        File.write(SETTING_YAML_FILE, content)
+      rescue StandardError
+        ret = :StandardError
+      end
+      ret
     end
 
     # DB構成ファイルの作成
@@ -145,7 +188,7 @@ module Arxutils_Sqlite3
 
     # Dbsetupファイル(Rubyスクリプトファイル)のrequire
     def require_dbsetup_file
-      dbsetup_file = File.join(".", get_dest_dbsetup_file_b.to_s)
+      dbsetup_file = File.join(".", dest_dbsetup_file_b.to_s)
       begin
         require dbsetup_file
       rescue LoadError
@@ -171,66 +214,49 @@ module Arxutils_Sqlite3
       exit exit_code
     end
 
-    # 変換先optsファイル(Rubyスクリプトファイル)へのパス
-    def get_dest_opts_file
-      DEST_OPTS_FILE
-    end
-
     # DB格納ディレクトリ名
-    def get_db_dir
+    def db_dir
       DB_DIR
     end
 
     # migrateディレクトリへのパス
-    def get_migrate_dir
+    def migrate_dir
       MIGRATE_DIR
     end
 
     # コンフィグディレクトリへのパス
-    def get_config_dir
+    def config_dir
       CONFIG_DIR
     end
 
     # リレーションテンプレートディレクトリへのパス
-    def get_template_acrecord_dir
+    def template_acrecord_dir
       TEMPLATE_ACRECORD_DIR
     end
 
     # テンプレートディレクトリへのパス
-    def get_template_config_dir
+    def template_config_dir
       TEMPLATE_CONFIG_DIR
     end
 
     # 変換先Dbsetupクラス定義のRubyスクリプトファイルへのパス
-    def get_src_dbsetup_file
+    def src_dbsetup_file
       DBSETUP_FILE
     end
 
     # 変換先Dbsetupクラス定義のRubyスクリプトファイルへのパス
-    def get_dest_dbsetup_file
+    def dest_dbsetup_file
       DEST_DBSETUP_FILE
-    end
-
-    # 変換先Dbsetupクラス定義のRubyスクリプトファイル(拡張子無し)へのパス
-    def get_dest_dbsetup_file_b
-      DEST_DBSETUP_FILE_B
-    end
-
-    # 変換後DBスキームファイル名(拡張子無し)
-    def get_dest_db_scheme_file
-      DEST_DB_SCHEME_FILE_B
     end
 
     # DBログファイルの作成
     def setup_for_db_log_path(dbconfig)
-      db_dir = get_db_dir
       # DBログファイルへのパス
       Arxutils_Sqlite3::Util.make_log_path(db_dir, dbconfig)
     end
 
     # DB構成ファイルの作成
     def setup_for_dbconfig_path(dbconfig)
-      config_dir = get_config_dir
       # DB構成ファイル名
       Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, dbconfig)
     end
@@ -247,7 +273,7 @@ module Arxutils_Sqlite3
       # DB構成ファイルの出力先ディレクトリ
       dbconfig_src_fname = "#{dbconfig}.tmpl"
       # migrate用スクリプトの出力先ディレクトリ名
-      migrate_dir = get_migrate_dir
+      # migrate_dir = get_migrate_dir
 
       Migrate.new(
         self,
@@ -260,8 +286,6 @@ module Arxutils_Sqlite3
     end
 
     def make_dbsetup_file(db_scheme_ary, acrecord, klass, dest_dbsetup_file)
-      src_dbsetup_file = get_src_dbsetup_file
-
       scope = Object.new
       hash0 = { module_name: acrecord[:module].join("::") }
       hash = db_scheme_ary[0].merge(hash0)

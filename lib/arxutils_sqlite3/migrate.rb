@@ -30,18 +30,18 @@ module Arxutils_Sqlite3
       # アプリ構成情報
       @config = config
       # DB格納ディレクトリ名
-      @db_dir = config.get_db_dir
+      @db_dir = config.db_dir
       # DB構成ファイルの出力先ディレクトリ
-      @dest_config_dir = config.get_config_dir
+      @dest_config_dir = config.config_dir
       # 生成するDB構成情報ファイルパス
       @dbconfig_dest_path = dbconfig_dest_path
       # 参照用DB構成情報ファイル名
       @dbconfig_src_fname = dbconfig_src_fname
 
       # テンプレートファイル格納ディレクトリ名
-      @src_path = config.get_template_acrecord_dir
+      @src_path = config.template_acrecord_dir
       # 構成ファイル格納ディレクトリ
-      @src_config_path = config.get_template_config_dir
+      @src_config_path = config.template_config_dir
       #      @src_config_path = Arxutils_Sqlite3::TEMPLATE_CONFIG_DIR
       # データベーススキーマ定義配列
       @db_scheme_ary = db_scheme_ary
@@ -215,14 +215,21 @@ module Arxutils_Sqlite3
       dir = acrecord_config[:dir]
       fname = acrecord_config[:filename]
       fpath = File.join(dir, fname)
-      File.open(fpath, "w") do |file|
-        acrecord_config[:module].map { |mod| file.puts("module #{mod}") }
-        content_array.map do |x|
-          file.puts x
-          file.puts ""
+      ret = :SUCCESS
+      begin
+        File.open(fpath, "w") do |file|
+          acrecord_config[:module].map { |mod| file.puts("module #{mod}") }
+          content_array.map do |x|
+            file.puts x
+            file.puts ""
+          end
+          acrecord_config[:module].map { |_mod| file.puts("end") }
         end
-        acrecord_config[:module].map { |_mod| file.puts("end") }
+      rescue StandardError
+        ret = :StandardError
       end
+
+      ret
     end
   end
 end

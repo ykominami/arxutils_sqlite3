@@ -17,6 +17,18 @@ end
 AR_VERSION = 6.0
 TEST_DATA_DIR = Pathname(__FILE__).parent.join("test_data")
 
+class TestEnv
+  def self.var_self(val)
+    @self_var = val
+  end
+
+  def self.var_self_value
+    @self_var
+  end
+end
+
+TestEnv.var_self(self)
+
 # Migrate.migrateのテスト実行用メソッド
 class TestData
   def self.setup

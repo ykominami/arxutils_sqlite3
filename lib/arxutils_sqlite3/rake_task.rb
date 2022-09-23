@@ -7,8 +7,13 @@ setting = config.load_setting_yaml_file
 klass = setting[:klass]
 klass = config.default_klass if klass.nil?
 
-desc "setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr"
+desc_arxutils_sqlite3 = "setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr"
+
+desc desc_arxutils_sqlite3.to_s
 task arxutils_sqlite3: %w[arx:setup arx:copy_db_scheme arx:copy_opts arx:makeconfig arx:make_migrate_script arx:migrate arx:acr]
+
+desc desc_arxutils_sqlite3.to_s
+task "arx:arxutils_sqlite3": %w[arxutils_sqlite3]
 
 desc "delete setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr"
 task "arx:bootstrap": %w[arx:delete arxutils_sqlite3]
@@ -18,6 +23,9 @@ task "arx:ma": %w[arx:migrate arx:acr]
 
 desc "delete_db"
 task "arx:b": %w[arx:delete_db]
+
+desc "delete setting.yaml"
+task "arx:ds": %w[arx:delete_setting]
 
 # コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリ
 # プトファイルの生成
@@ -68,4 +76,7 @@ task "arx:delete_db" do
   sh "bundle exec arxutils_sqlite3 --cmd=b"
 end
 
-
+desc "delete setting yaml"
+task "arx:delete_setting" do
+  sh "bundle exec arxutils_sqlite3 --cmd=y"
+end
