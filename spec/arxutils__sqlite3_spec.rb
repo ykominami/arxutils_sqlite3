@@ -23,7 +23,7 @@ RSpec.describe Arxutils_Sqlite3 do
     #     expect {
     #       cli.setup(klass)
     #     }.to_not raise_error(StandardError)
-    expect(cli.setup(klass)).to be(true)
+    expect(cli.setup(klass)).to be(:SUCCESS)
   end
 
   it "cli copy_db_scheme", cmd: :cds do
@@ -48,7 +48,7 @@ RSpec.describe Arxutils_Sqlite3 do
   end
 
   it "cli setup_for_migrate", cmd: :f do
-    puts opts
+    # puts opts
 
     yaml_fname = db_scheme_file
     acrecord = opts[:acrecord]
@@ -56,7 +56,7 @@ RSpec.describe Arxutils_Sqlite3 do
     #     expect {
     #       cli.setup_for_migrate(yaml_pn, acrecord, klass)
     #     }.to_not raise_error(StandardError)
-    expect(cli.setup_for_migrate(yaml_pn, acrecord, klass)).to be(true)
+    expect(cli.setup_for_migrate(yaml_pn, acrecord, klass)).to be(:SUCCESS)
   end
 
   it "cli migrate", cmd: :m do
@@ -67,7 +67,7 @@ RSpec.describe Arxutils_Sqlite3 do
   end
 
   it "cli acr", cmd: :a do
-    expect(cli.acr).to be(true)
+    expect(cli.acr).to be(:SUCCESS)
     #     expect {
     #       cli.acr
     #     }.to_not raise_error(StandardError)
