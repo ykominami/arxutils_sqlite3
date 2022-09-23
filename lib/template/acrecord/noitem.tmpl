@@ -1,9 +1,9 @@
 class Create<%= @data[:classname] %> < ActiveRecord::Migration[<%= @data[:ar_version] %>]
   def self.up
     create_table :<%= @data[:plural] %> do |t|
-<% @data[:ary].each do |x| %>    
+<% @data[:ary].each do |x| %>
       t.column :<%= x.name %>, :<%= x.type %>, :null => <%= x.null %>
-<% end %>    
+<% end %>
     end
   end
 
