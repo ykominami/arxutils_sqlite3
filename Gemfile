@@ -12,7 +12,7 @@ gem "simpleoptparse"
 # gem "ykutils" , :github => "ykominami/ykutils"
 gem "ykutils", "> 0.1.3"
 gem "ykxutils", "> 0.1.0"
-# gem "ykxutils", :path => "../ykxutils"
+# gem "ykxutils", path: "../ykxutils"
 
 gem "activesupport"
 # spec.add_runtime_dependency "erb"

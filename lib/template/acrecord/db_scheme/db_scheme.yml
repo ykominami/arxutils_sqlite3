@@ -11,8 +11,8 @@
   :ar_version: 6.0
 - :flist:
     - noitem
-  :classname: Xevnb
-  :classname_downcase: xevnb
+  :classname: <%= klass %>
+  :classname_downcase: <%= klass.downcase %> 
   :items:
     - - time_id
       - integer
@@ -20,14 +20,14 @@
     - - ennb_id
       - integer
       - 'false'
-  :plural: xevnbs
+  :plural: <%= klass.downcase %>s
   :ar_version: 6.0
 - :flist:
     - noitem
     - invalid
     - current
-  :classname: Xennblist
-  :classname_downcase: xennblist
+  :classname: <%= klass %>list
+  :classname_downcase: <%= klass.downcase %>list
   :items:
     - - stack
       - string
@@ -44,5 +44,5 @@
     - - start_datetime
       - datetime
       - 'false'
-  :plural: xennblists
+  :plural: <%= klass.downcase %>lists
   :ar_version: 6.0

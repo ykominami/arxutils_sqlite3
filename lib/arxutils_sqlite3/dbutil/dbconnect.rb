@@ -49,8 +49,8 @@ module Arxutils_Sqlite3
             ActiveRecord::Base.establish_connection(dbconfig[@env])
             ActiveRecord::Base.logger = Logger.new(@log_path)
             @connect_time = DateTime.now.new_offset
-          rescue StandardError => ex
-            p ex.message
+          rescue StandardError => e
+            p e.message
           end
         end
         @connect_time
