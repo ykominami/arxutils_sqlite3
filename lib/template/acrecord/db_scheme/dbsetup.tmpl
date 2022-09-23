@@ -5,7 +5,7 @@ class Dbsetup
     @connect_time = connect_time
     @ct = <%= klass %>::Dbutil::Countdatetime.create( countdatetime: @connect_time )
     @hs_by_notebook = {}
-    @hs_by_id = {]}
+    @hs_by_id = {}
   end
 =begin
   # 指定stack(文字列)にノートブック(文字列)、ノートブック数、タグ数を追加
