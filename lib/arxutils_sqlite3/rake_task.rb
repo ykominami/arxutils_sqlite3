@@ -80,3 +80,8 @@ desc "delete setting yaml"
 task "arx:delete_setting" do
   sh "bundle exec arxutils_sqlite3 --cmd=y"
 end
+
+desc "delete migrate scripts"
+task "arx:delete_migrate" do
+  sh "bundle exec arxutils_sqlite3 --cmd=dm"
+end

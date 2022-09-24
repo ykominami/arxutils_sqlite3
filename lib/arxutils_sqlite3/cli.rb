@@ -1,10 +1,23 @@
 module Arxutils_Sqlite3
   # CLI用クラス
   class Cli
-    def initialize(config, dbconfig, env)
+    def initialize(config, dbconfig, env, acrecord, yaml_fname, klass)
       @config = config
       @dbconfig = dbconfig
       @env = env
+      @acrecord = acrecord
+      @dbconfig_path = @config.make_dbconfig_path(@dbconfig)
+
+      @db_scheme_ary = nil
+      if yaml_fname && yaml_fname.strip != ""
+        yaml_pn = Pathname.new(yaml_fname)
+        @db_scheme_ary = YAML.load_file(yaml_pn)
+      end
+      @mig = @config.prepare_for_migrate(@db_scheme_ary, @dbconfig_path, @dbconfig, @acrecord)
+    end
+
+    def setup_for_migrate(yaml_pn, klass)
+
     end
 
     def setup(klass)
@@ -29,24 +42,22 @@ module Arxutils_Sqlite3
       @config.copy_opts_file
     end
 
-    def makeconfig(acrecord, _banner, _exit_code, opts)
+    def setup_for_migrate
       db_scheme_ary = nil
       dbconfig_path = @config.make_dbconfig_path(@dbconfig)
       # @config.check_file_exist(dbconfig_path, banner, exit_code)
-      mig = @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, acrecord)
-      mig.make_dbconfig(opts)
+      @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, @acrecord)
     end
 
-    def setup_for_migrate(yaml_pn, acrecord, klass)
-      db_scheme_ary = YAML.load_file(yaml_pn)
-      dbconfig_path = @config.make_dbconfig_path(@dbconfig)
+    def makeconfig(opts)
+      @mig.make_dbconfig(opts)
+    end
 
-      dest_dbsetup_file = @config.dest_dbsetup_file
-      @config.make_dbsetup_file(db_scheme_ary, acrecord, klass, dest_dbsetup_file)
-
+    def make_migrate_script
+      @dest_dbsetup_file = @config.dest_dbsetup_file
+      @config.make_dbsetup_file(@db_scheme_ary, @acrecord, @klass, @dest_dbsetup_file)
       # マイグレーション用スクリプトの生成、acrecordのクラス定義ファイルの生成
-      mig = @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, acrecord)
-      mig.output
+      @mig.output
     end
 
     # マイグレーション実行
@@ -75,23 +86,24 @@ module Arxutils_Sqlite3
       ret
     end
 
-    def delete(db_scheme_ary, acrecord)
-      config_dir = @config.config_dir
-      dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, @dbconfig)
-      mig = @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, acrecord)
-      mig.delete_migrate_and_config_and_db
+    def delete
+      @mig.delete_migrate_and_config_and_db
     end
 
-    def delete_db(db_scheme_ary, acrecord)
-      config_dir = @config.config_dir
-      dbconfig_path = Arxutils_Sqlite3::Util.make_dbconfig_path(config_dir, @dbconfig)
-      mig = @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, acrecord)
-      # mig.delete_migrate_config_and_db
-      mig.delete_db
+    def delete_db
+      @mig.delete_db
+    end
+
+    def delete_nigrate
+      @mig.delete_migrate
     end
 
     def delete_setting_yaml
       FileUtils.rm_f(@config.setting_yaml_file)
+    end
+
+    def delete_migrate
+      @mig.delete_migrate
     end
 
     def rm_dbconfig
