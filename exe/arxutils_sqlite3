@@ -13,10 +13,10 @@ opts, klass = config.setupx(self)
 # p klass
 # exit
 
-banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|b|y) -y yaml_file --klass=class"
+banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|b|y|dm) -y yaml_file --klass=class"
 
 Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
-  parser.on("--cmd X", %w[s cds co c f m a d b y]) { |x| opts["cmd"] = x }
+  parser.on("--cmd X", %w[s cds co c f m a d b y dm]) { |x| opts["cmd"] = x }
   parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
   parser.on("--klass klass") { |x| opts["klass"] = x }
 end
@@ -25,7 +25,10 @@ dbconfig = Arxutils_Sqlite3::Config::DBCONFIG_SQLITE3
 env = ENV.fetch("ENV", nil)
 env ||= "production"
 
-cli = Arxutils_Sqlite3::Cli.new(config, dbconfig, env)
+acrecord = opts[:acrecord]
+yaml_fname = opts["yaml"]
+klass = opts["klass"]
+cli = Arxutils_Sqlite3::Cli.new(config, dbconfig, env, acrecord, yaml_fname, klass)
 
 case opts["cmd"]
 when "s"
@@ -44,20 +47,16 @@ when "co"
   cli.copy_opts_file
 
 when "c"
-  acrecord = opts[:acrecord]
-  cli.makeconfig(acrecord, banner, 30, opts)
+  cli.makeconfig(opts)
 
 when "f"
-  yaml_fname = opts["yaml"]
-  acrecord = opts[:acrecord]
   if yaml_fname.nil? || yaml_fname.strip == ""
     puts banner
     exit 40
   end
   yaml_pn = Pathname.new(yaml_fname)
   config.check_file_not_exist(yaml_pn, banner, 55)
-  cli.setup_for_migrate(yaml_pn, acrecord, klass)
-
+  cli.make_migrate_script
 when "m"
   cli.migrate
 
@@ -65,17 +64,17 @@ when "a"
   cli.acr
 
 when "d"
-  db_scheme_ary = nil
-  acrecord = opts["acrecord"]
-  cli.delete(db_scheme_ary, acrecord)
+  cli.delete
 
 when "b"
-  db_scheme_ary = nil
-  acrecord = opts["acrecord"]
-  cli.delete_db(db_scheme_ary, acrecord)
+  cli.delete_db
 
 when "y"
   cli.delete_setting_yaml
+
+when "dm"
+  cli.delete_migrate
+
 else
   puts "Invalid command(#{opts["cmd"]}) specified!!"
 end

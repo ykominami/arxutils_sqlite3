@@ -85,7 +85,6 @@ module Arxutils_Sqlite3
     # DBファイルの削除
     def delete_db
       Dir.glob(File.join(@db_dir, "*")).each do |x|
-        # puts x
         FileUtils.rm(x) if File.file?(x)
       end
     end
