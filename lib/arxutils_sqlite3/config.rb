@@ -61,10 +61,10 @@ module Arxutils_Sqlite3
     # 削除しないファイル群
     EXCLUDE_FILES = %w[SETTING_YAML_FILE_NAME].freeze
     # 作成対象のActiveRecordの子クラスのデフォルトクラス名
-    DEFAULT_KLASS = "Xenop".freeze
+    DEFAULT_MOD = "Xenop".freeze
 
-    def default_klass
-      DEFAULT_KLASS
+    def default_mod
+      DEFAULT_MOD
     end
 
     def setting_yaml_file
@@ -95,13 +95,13 @@ module Arxutils_Sqlite3
 
       setting = load_setting_yaml_file
       # p "setting=#{setting}"
-      klass = setting[:klass]
-      klass ||= DEFAULT_KLASS
+      mod = setting[:mod]
+      mod ||= DEFAULT_MOD
 
       # DBセットアップクラス
       require_dbsetup_file
 
-      [opts, klass]
+      [opts, mod]
     end
 
     # DB構成ファイル格納ディレクトリの作成
@@ -111,12 +111,12 @@ module Arxutils_Sqlite3
     end
 
     # DBスキームファイルのサンプルファイコピー
-    def setup_db_scheme_file(klass)
+    def setup_db_scheme_file(mod)
       # p "config setup_db_scheme_file"
       # p "DB_SCHEME_FILE=#{DB_SCHEME_FILE}"
       # p "SAMPLE_DB_SCHEME_FILE=#{SAMPLE_DB_SCHEME_FILE}"
       scope = {}
-      value_hash = { klass: klass }
+      value_hash = { mod: mod }
       content = Ykutils::Erubyx.erubi_render_with_template_file(DB_SCHEME_FILE, scope, value_hash)
       Ykxutils.yaml_load_compati(content)
       File.write(SAMPLE_DB_SCHEME_FILE, content)
@@ -130,9 +130,9 @@ module Arxutils_Sqlite3
     end
 
     # optsファイル(Rubyスクリプトファイル)のサンプルファイル書き込み
-    def setup_opts_file(klass)
+    def setup_opts_file(mod)
       scope = Object.new
-      hash = { klass: klass }
+      hash = { mod_name: mod }
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(OPTS_FILE, scope, hash)
       File.write(SAMPLE_OPTS_FILE, result_content)
     end
@@ -147,8 +147,8 @@ module Arxutils_Sqlite3
     end
 
     # setting.ymlへの出力
-    def setup_setting_yaml_file(klass)
-      hash = { klass: klass }
+    def setup_setting_yaml_file(mod)
+      hash = { mod: mod }
       content = YAML.dump(hash)
       ret = :SUCCESS
       begin
@@ -285,11 +285,10 @@ module Arxutils_Sqlite3
       )
     end
 
-    def make_dbsetup_file(db_scheme_ary, acrecord, klass, dest_dbsetup_file)
+    def make_dbsetup_file(db_scheme_ary, acrecord, _mod, dest_dbsetup_file)
       scope = Object.new
-      hash0 = { module_name: acrecord[:module].join("::") }
+      hash0 = { mod_name: acrecord[:module].join("::") }
       hash = db_scheme_ary[0].merge(hash0)
-      hash["klass"] = klass
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(src_dbsetup_file, scope, hash)
 
       File.write(dest_dbsetup_file, result_content)
