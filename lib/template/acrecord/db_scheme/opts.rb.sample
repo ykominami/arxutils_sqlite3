@@ -1,6 +1,6 @@
 @opts = {
   acrecord: {
-    module: %w[<%= klass %> Dbutil],
+    module: %w[<%= mod %> Dbutil],
     filename: "dbacrecord.rb",
     dir: "lib"
   }

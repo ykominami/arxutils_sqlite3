@@ -8,17 +8,17 @@ require "ykxutils"
 
 config = Arxutils_Sqlite3::Config.new
 
-opts, klass = config.setupx(self)
+opts, mod = config.setupx(self)
 # p opts
-# p klass
+# p mod
 # exit
 
-banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|b|y|dm) -y yaml_file --klass=class"
+banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|del|b|y|dm) -y yaml_file --mod=mod"
 
 Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
-  parser.on("--cmd X", %w[s cds co c f m a d b y dm]) { |x| opts["cmd"] = x }
+  parser.on("--cmd X", %w[s cds co c f m a d del b y dm]) { |x| opts["cmd"] = x }
   parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
-  parser.on("--klass klass") { |x| opts["klass"] = x }
+  parser.on("--mod mod") { |x| opts["mod"] = x }
 end
 
 dbconfig = Arxutils_Sqlite3::Config::DBCONFIG_SQLITE3
@@ -27,18 +27,18 @@ env ||= "production"
 
 acrecord = opts[:acrecord]
 yaml_fname = opts["yaml"]
-klass = opts["klass"]
-cli = Arxutils_Sqlite3::Cli.new(config, dbconfig, env, acrecord, yaml_fname, klass)
+mod ||= opts["mod"]
+cli = Arxutils_Sqlite3::Cli.new(config, dbconfig, env, acrecord, yaml_fname, mod)
 
 case opts["cmd"]
 when "s"
   # config.check_file_exist(Arxutils_Sqlite3::Config::SAMPLE_DEST_OPTS_FILE, banner, 10)
 
-  if opts["klass"].nil? || opts["klass"].strip == ""
+  if opts["mod"].nil? || opts["mod"].strip == ""
     puts banner
     exit 20
   end
-  cli.setup(klass)
+  cli.setup(mod)
 
 when "cds"
   cli.copy_db_scheme
@@ -64,6 +64,9 @@ when "a"
   cli.acr
 
 when "d"
+  cli.clean
+
+when "del"
   cli.delete
 
 when "b"

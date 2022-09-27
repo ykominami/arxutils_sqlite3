@@ -2,10 +2,10 @@
 require "arxutils_sqlite3"
 config = Arxutils_Sqlite3::Config.new
 
-klass = nil
+mod = nil
 setting = config.load_setting_yaml_file
-klass = setting[:klass]
-klass = config.default_klass if klass.nil?
+mod = setting[:mod]
+mod = config.default_mod if mod.nil?
 
 desc_arxutils_sqlite3 = "setup copy_db_scheme copy_opts makeconfig make_migrate_script migrate acr"
 
@@ -29,9 +29,9 @@ task "arx:ds": %w[arx:delete_setting]
 
 # コマンドラインで指定したクラス名を含むオプション指定用ハッシュの定義を含むRubyスクリ
 # プトファイルの生成
-desc "produce setting.yml, db_scheme.yml.sample and opts.rb.sample with class name #{klass}"
+desc "produce setting.yml, db_scheme.yml.sample and opts.rb.sample with class name #{mod}"
 task "arx:setup" do
-  sh "bundle exec arxutils_sqlite3 --cmd=s --klass=#{klass}"
+  sh "bundle exec arxutils_sqlite3 --cmd=s --mod=#{mod}"
 end
 
 desc "copy from db_scheme.yml.sample to db_scheme.yml"
@@ -68,6 +68,11 @@ end
 
 desc "delete configuration files adn migration scripts and db files"
 task "arx:delete" do
+  sh "bundle exec arxutils_sqlite3 --cmd=del"
+end
+
+desc "delete configuration files adn migration scripts and db files"
+task "arx:clean" do
   sh "bundle exec arxutils_sqlite3 --cmd=d"
 end
 

@@ -1,7 +1,7 @@
 module Arxutils_Sqlite3
   # CLI用クラス
   class Cli
-    def initialize(config, dbconfig, env, acrecord, yaml_fname, klass)
+    def initialize(config, dbconfig, env, acrecord, yaml_fname, _mod)
       @config = config
       @dbconfig = dbconfig
       @env = env
@@ -16,19 +16,15 @@ module Arxutils_Sqlite3
       @mig = @config.prepare_for_migrate(@db_scheme_ary, @dbconfig_path, @dbconfig, @acrecord)
     end
 
-    def setup_for_migrate(yaml_pn, klass)
-
-    end
-
-    def setup(klass)
+    def setup(mod)
       # p "make_config_directory"
       @config.make_config_directory
       # p "setup_db_scheme_file"
-      @config.setup_db_scheme_file(klass)
-      # p "setup_opts_file(#{klass})"
-      @config.setup_opts_file(klass)
-      # p "setup_setting_yaml_file(#{klass})"
-      @config.setup_setting_yaml_file(klass)
+      @config.setup_db_scheme_file(mod)
+      # p "setup_opts_file(#{mod})"
+      @config.setup_opts_file(mod)
+      # p "setup_setting_yaml_file(#{mod})"
+      @config.setup_setting_yaml_file(mod)
       # db_scheme_ary = nil
     end
 
@@ -43,10 +39,12 @@ module Arxutils_Sqlite3
     end
 
     def setup_for_migrate
+      ret = :SUCCESS
       db_scheme_ary = nil
       dbconfig_path = @config.make_dbconfig_path(@dbconfig)
       # @config.check_file_exist(dbconfig_path, banner, exit_code)
       @config.prepare_for_migrate(db_scheme_ary, dbconfig_path, @dbconfig, @acrecord)
+      ret
     end
 
     def makeconfig(opts)
@@ -55,7 +53,7 @@ module Arxutils_Sqlite3
 
     def make_migrate_script
       @dest_dbsetup_file = @config.dest_dbsetup_file
-      @config.make_dbsetup_file(@db_scheme_ary, @acrecord, @klass, @dest_dbsetup_file)
+      @config.make_dbsetup_file(@db_scheme_ary, @acrecord, @mod, @dest_dbsetup_file)
       # マイグレーション用スクリプトの生成、acrecordのクラス定義ファイルの生成
       @mig.output
     end
@@ -79,15 +77,20 @@ module Arxutils_Sqlite3
       ret = :SUCCESS
       begin
         Dbsetup.new(connect_time)
-      rescue StandardError
+      rescue StandardError => e
+        puts e.message
         ret = :StandardError
       end
 
       ret
     end
 
-    def delete
+    def clean
       @mig.delete_migrate_and_config_and_db
+    end
+
+    def delete
+      @mig.delete_migrate_and_db
     end
 
     def delete_db

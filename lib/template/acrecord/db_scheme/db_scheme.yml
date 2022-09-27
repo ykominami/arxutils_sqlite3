@@ -11,8 +11,8 @@
   :ar_version: 6.0
 - :flist:
     - noitem
-  :classname: <%= klass %>
-  :classname_downcase: <%= klass.downcase %> 
+  :classname: <%= mod %>
+  :classname_downcase: <%= mod.downcase %>
   :items:
     - - time_id
       - integer
@@ -20,14 +20,14 @@
     - - ennb_id
       - integer
       - 'false'
-  :plural: <%= klass.downcase %>s
+  :plural: <%= mod.downcase %>s
   :ar_version: 6.0
 - :flist:
     - noitem
     - invalid
     - current
-  :classname: <%= klass %>list
-  :classname_downcase: <%= klass.downcase %>list
+  :classname: <%= mod %>list
+  :classname_downcase: <%= mod.downcase %>list
   :items:
     - - stack
       - string
@@ -44,5 +44,5 @@
     - - start_datetime
       - datetime
       - 'false'
-  :plural: <%= klass.downcase %>lists
+  :plural: <%= mod.downcase %>lists
   :ar_version: 6.0
