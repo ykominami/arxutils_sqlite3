@@ -118,7 +118,7 @@ module Arxutils_Sqlite3
       scope = {}
       value_hash = { mod: mod }
       content = Ykutils::Erubyx.erubi_render_with_template_file(DB_SCHEME_FILE, scope, value_hash)
-      Ykxutils.yaml_load_compati(content)
+      # Ykxutils.yaml_load_compati(content)
       File.write(SAMPLE_DB_SCHEME_FILE, content)
     end
 
