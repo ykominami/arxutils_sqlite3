@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Arxutils_Sqlite3
   # CLI用クラス
   class Cli
@@ -9,7 +11,7 @@ module Arxutils_Sqlite3
       @dbconfig_path = @config.make_dbconfig_path(@dbconfig)
 
       @db_scheme_ary = nil
-      if yaml_fname && yaml_fname.strip != ""
+      if yaml_fname && yaml_fname.strip != ''
         yaml_pn = Pathname.new(yaml_fname)
         @db_scheme_ary = YAML.load_file(yaml_pn)
       end

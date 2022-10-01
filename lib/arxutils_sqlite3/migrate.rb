@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 # require "arxutils_sqlite3"
-require "ykutils"
-require "fileutils"
+require 'ykutils'
+require 'fileutils'
 # require "active_support"
-require "active_record"
-require "active_record/migration"
-require "pp"
+require 'active_record'
+require 'active_record/migration'
+require 'pp'
 
 # ActiveRecord用ユーティリティモジュール
 module Arxutils_Sqlite3
@@ -58,7 +60,7 @@ module Arxutils_Sqlite3
     def delete_migrate_and_config_and_db
       #    def delete_migrate_and_config
       delete_migrate
-      Dir.glob(File.join(@dest_config_dir, "*")).each do |x|
+      Dir.glob(File.join(@dest_config_dir, '*')).each do |x|
         basename = File.basename(x)
         ret = !@config.exclude_file?(basename)
         ret_file = File.file?(x)
@@ -77,14 +79,14 @@ module Arxutils_Sqlite3
     def delete_migrate
       return unless @migrate_dir
 
-      Dir.glob(File.join(@migrate_dir, "*")).each do |x|
+      Dir.glob(File.join(@migrate_dir, '*')).each do |x|
         FileUtils.rm(x) if File.file?(x)
       end
     end
 
     # DBファイルの削除
     def delete_db
-      Dir.glob(File.join(@db_dir, "*")).each do |x|
+      Dir.glob(File.join(@db_dir, '*')).each do |x|
         FileUtils.rm(x) if File.file?(x)
       end
     end
@@ -106,12 +108,12 @@ module Arxutils_Sqlite3
       if content_array.find { |x| !x.nil? }
         # p "####### 1"
         data_count = {
-          count_classname: "Count",
+          count_classname: 'Count',
           need_count_class_plural: need_count_class_plural
         }
         # p "data_count=#{data_count}"
         ary = content_array.collect { |x| x[:content] }.flatten
-        count_content = convert_count_class_acrecord(data_count, "acrecord_count.tmpl")
+        count_content = convert_count_class_acrecord(data_count, 'acrecord_count.tmpl')
         ary.unshift(count_content)
         content_array = ary
       end
@@ -132,7 +134,7 @@ module Arxutils_Sqlite3
     def make_content_array
       # スキーマ設定配列から、acrecordのmigrate用のスクリプトの内容(ハッシュ形式)の配列を作成する
       acrecords = @db_scheme_ary.map do |x|
-        make_acrecord(x, "count")
+        make_acrecord(x, 'count')
       end
       acrecords.select { |x| x.size.positive? }
     end
@@ -153,7 +155,7 @@ module Arxutils_Sqlite3
     def make_dbconfig(data)
       content = convert(data, @src_config_path, @dbconfig_src_fname)
       File.open(
-        @dbconfig_dest_path, "w:utf-8"
+        @dbconfig_dest_path, 'w:utf-8'
       ) do |f|
         f.puts(content)
       end
@@ -169,8 +171,8 @@ module Arxutils_Sqlite3
         # 指定フィールドのフィールド名に対応したテンプレートファイルを用いて、acrecord設定を作成
         data[:flist].each_with_object({ content: [], need_count_class: nil }) do |field_name, s|
           case field_name
-          when "base", "noitem"
-            name_base = "acrecord"
+          when 'base', 'noitem'
+            name_base = 'acrecord'
             # data[:acrecord]がnilに設定されていたら改めて空の配列を設定
             data[:acrecord] = [] unless data[:acrecord]
           else
@@ -198,13 +200,13 @@ module Arxutils_Sqlite3
     # migrationのスクリプトをファイル出力する
     def output_script(idy, kind, content, classname_downcase)
       additional = case kind
-                   when "base", "noitem"
-                     ""
+                   when 'base', 'noitem'
+                     ''
                    else
                      kind
                    end
-      fname = File.join(@migrate_dir, format("%03d_create_%s%s.rb", idy, additional, classname_downcase))
-      File.open(fname, "w", **{ encoding: Encoding::UTF_8 }) do |f|
+      fname = File.join(@migrate_dir, format('%03d_create_%s%s.rb', idy, additional, classname_downcase))
+      File.open(fname, 'w', **{ encoding: Encoding::UTF_8 }) do |f|
         f.puts(content)
       end
     end
@@ -216,13 +218,13 @@ module Arxutils_Sqlite3
       fpath = File.join(dir, fname)
       ret = :SUCCESS
       begin
-        File.open(fpath, "w") do |file|
+        File.open(fpath, 'w') do |file|
           acrecord_config[:module].map { |mod| file.puts("module #{mod}") }
           content_array.map do |x|
             file.puts x
-            file.puts ""
+            file.puts ''
           end
-          acrecord_config[:module].map { |_mod| file.puts("end") }
+          acrecord_config[:module].map { |_mod| file.puts('end') }
         end
       rescue StandardError
         ret = :StandardError
