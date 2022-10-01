@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module Arxutils_Sqlite3
+  # パス操作ユーティリティクラス
   class Util
     # DBログファイルへのパスの作成
     def self.make_log_path(db_dir, dbconfig)
-      log_path = ""
+      log_path = ''
       log_fname = Dbutil::Dbconnect.make_log_file_name(
         dbconfig, Config::DATABASELOG
       )

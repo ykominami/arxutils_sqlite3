@@ -14,12 +14,12 @@ module Dbutil
   end
 
   class Invalidxenoplist < ActiveRecord::Base
-    belongs_to :xenoplist, foreign_key: "org_id"
-    belongs_to :count, foreign_key: ""
+    belongs_to :xenoplist, foreign_key: 'org_id'
+    belongs_to :count, foreign_key: ''
   end
 
   class Currentxenoplist < ActiveRecord::Base
-    belongs_to :xenoplist, foreign_key: "org_id"
+    belongs_to :xenoplist, foreign_key: 'org_id'
   end
 
 end

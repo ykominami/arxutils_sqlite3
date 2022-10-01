@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require "arxutils_sqlite3"
-require "simpleoptparse"
-require "pp"
-require "ykutils"
-require "ykxutils"
+require 'arxutils_sqlite3'
+require 'simpleoptparse'
+require 'pp'
+require 'ykutils'
+require 'ykxutils'
 
 config = Arxutils_Sqlite3::Config.new
 
@@ -13,69 +14,69 @@ opts, mod = config.setupx(self)
 # p mod
 # exit
 
-banner = "Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|del|b|y|dm) -y yaml_file --mod=mod"
+banner = 'Usage: bundle exec arxutils_sqlite3 --cmd=(s|cds|co|c|f|m|a|d|del|b|y|dm) -y yaml_file --mod=mod'
 
 Simpleoptparse::Simpleoptparse.parse(ARGV, opts, banner, Arxutils_Sqlite3::VERSION, nil) do |parser|
-  parser.on("--cmd X", %w[s cds co c f m a d del b y dm]) { |x| opts["cmd"] = x }
-  parser.on("-y yaml_file", "--yaml yaml_file") { |x| opts["yaml"] = x }
-  parser.on("--mod mod") { |x| opts["mod"] = x }
+  parser.on('--cmd X', %w[s cds co c f m a d del b y dm]) { |x| opts['cmd'] = x }
+  parser.on('-y yaml_file', '--yaml yaml_file') { |x| opts['yaml'] = x }
+  parser.on('--mod mod') { |x| opts['mod'] = x }
 end
 
 dbconfig = Arxutils_Sqlite3::Config::DBCONFIG_SQLITE3
-env = ENV.fetch("ENV", nil)
-env ||= "production"
+env = ENV.fetch('ENV', nil)
+env ||= 'production'
 
 acrecord = opts[:acrecord]
-yaml_fname = opts["yaml"]
-mod ||= opts["mod"]
+yaml_fname = opts['yaml']
+mod ||= opts['mod']
 cli = Arxutils_Sqlite3::Cli.new(config, dbconfig, env, acrecord, yaml_fname, mod)
 
-case opts["cmd"]
-when "s"
+case opts['cmd']
+when 's'
   # config.check_file_exist(Arxutils_Sqlite3::Config::SAMPLE_DEST_OPTS_FILE, banner, 10)
 
-  if opts["mod"].nil? || opts["mod"].strip == ""
+  if opts['mod'].nil? || opts['mod'].strip == ''
     puts banner
     exit 20
   end
   cli.setup(mod)
 
-when "cds"
+when 'cds'
   cli.copy_db_scheme
 
-when "co"
+when 'co'
   cli.copy_opts_file
 
-when "c"
+when 'c'
   cli.makeconfig(opts)
 
-when "f"
-  if yaml_fname.nil? || yaml_fname.strip == ""
+when 'f'
+  if yaml_fname.nil? || yaml_fname.strip == ''
     puts banner
     exit 40
   end
   yaml_pn = Pathname.new(yaml_fname)
   config.check_file_not_exist(yaml_pn, banner, 55)
   cli.make_migrate_script
-when "m"
+when 'm'
   cli.migrate
 
-when "a"
+when 'a'
   cli.acr
 
-when "d"
+when 'd'
   cli.clean
 
-when "del"
+when 'del'
   cli.delete
 
-when "b"
+when 'b'
   cli.delete_db
 
-when "y"
+when 'y'
   cli.delete_setting_yaml
 
-when "dm"
+when 'dm'
   cli.delete_migrate
 
 else

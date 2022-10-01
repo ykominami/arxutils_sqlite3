@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Arxutils_Sqlite3
   # 階層処理
   class HierOp
@@ -93,7 +95,7 @@ module Arxutils_Sqlite3
     def register_parent(hier_ary, child_num, level)
       hier_ary.pop
       parent_hier_ary = hier_ary
-      parent_hier = parent_hier_ary.join("/")
+      parent_hier = parent_hier_ary.join('/')
       parent_num = register(parent_hier)
       hs = { parent_id: parent_num, child_id: child_num, level: level }
       @hier_klass.create(hs)
@@ -101,7 +103,7 @@ module Arxutils_Sqlite3
 
     # 文字列で指定した階層(/を区切り文字として持つ)をhier_klassに登録
     def register(hier)
-      hier_ary = hier.split("/")
+      hier_ary = hier.split('/')
       level = get_level_by_array(hier_ary)
 
       # もしhier_aryがnilだけを1個持つ配列、または空文字列だけを1個もつ配列であれば、hier_nameは空文字列になる
@@ -175,7 +177,7 @@ module Arxutils_Sqlite3
 
     # 階層を表すデータ構造から階層の名前を得る
     def get_name(items_row)
-      items_row ? items_row.name.split("/").pop : ""
+      items_row ? items_row.name.split('/').pop : ''
     end
 
     # 階層を表すデータ構造で指定された階層の下部階層の名前を調整する
@@ -212,7 +214,7 @@ module Arxutils_Sqlite3
 
     # 文字列で指定された親の階層の下の子の名前から、子の名前を作成
     def make_hier(parent_hier, name)
-      [parent_hier, name].join("/")
+      [parent_hier, name].join('/')
     end
   end
 end

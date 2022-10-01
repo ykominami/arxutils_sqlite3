@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Arxutils_Sqlite3
   # 簡易的なトランザクション処理
   class TransactState

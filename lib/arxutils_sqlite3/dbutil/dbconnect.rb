@@ -1,17 +1,18 @@
 #! -*- encoding : UTF-8 -*-
+# frozen_string_literal: true
 
-require "fileutils"
-require "yaml"
-require "active_record"
-require "sqlite3"
-require "ykxutils"
+require 'fileutils'
+require 'yaml'
+require 'active_record'
+require 'sqlite3'
+require 'ykxutils'
 
 module Arxutils_Sqlite3
   module Dbutil
     # DB操作用ユーティリティクラス
     class Dbconnect
       def self.make_log_file_name(dbconfig, log_file_base_name)
-        format("%s-%s", dbconfig.to_s, log_file_base_name)
+        format('%s-%s', dbconfig.to_s, log_file_base_name)
       end
 
       def self.db_connect(config, dbconfig, env)
