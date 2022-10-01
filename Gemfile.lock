@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    arxutils_sqlite3 (0.1.58)
+    arxutils_sqlite3 (0.1.59)
       activerecord (~> 6.1)
       activesupport
       simpleoptparse
