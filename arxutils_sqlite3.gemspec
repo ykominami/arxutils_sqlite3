@@ -33,20 +33,21 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   # p spec.executables
   spec.require_paths = ['lib']
-  spec.add_runtime_dependency 'activesupport'
-  # spec.add_runtime_dependency "erb"
-  # spec.add_runtime_dependency "activerecord", "~> 4.2"
+  
+  spec.add_runtime_dependency 'bundler'
 
+  spec.add_runtime_dependency 'activesupport'
   spec.add_runtime_dependency 'activerecord', '~> 6.1'
-  spec.add_runtime_dependency 'simpleoptparse'
   spec.add_runtime_dependency 'sqlite3'
+  spec.add_runtime_dependency 'simpleoptparse'
   spec.add_runtime_dependency 'ykutils'
   spec.add_runtime_dependency 'ykxutils'
-  # spec.add_development_dependency "bundler", "~> 2.2.10"
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'rake', '~> 13.0'
+  spec.add_runtime_dependency 'rake', '~> 13.0'
+
+  spec.add_development_dependency 'power_assert', '~> 1.1.5'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop', '~> 1.7'
+  spec.add_development_dependency 'rubocop-performance'
   spec.add_development_dependency 'rubocop-rake'
   spec.add_development_dependency 'rubocop-rspec'
   spec.add_development_dependency 'yard'

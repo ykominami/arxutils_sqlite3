@@ -1,23 +1,40 @@
 # frozen_string_literal: true
 
-require 'bundler/gem_tasks'
-# require "rake/testtask"
+require "bundler/gem_tasks"
 
-# Rake::TestTask.new do |t|
-#  t.libs  << "test"
-# end
+begin
+  require "rspec/core/rake_task"
+rescue LoadError => e
+  puts e.message
+end
 
-# desc "Run test"
-# task default: :test
+begin
+  RSpec::Core::RakeTask.new(:spec)
+rescue NameError, LoadError => e
+  puts e.message
+end
 
-require 'rspec/core/rake_task'
+begin
+  require "rubocop/rake_task"
+rescue LoadError => e
+  puts e.message
+end
 
-RSpec::Core::RakeTask.new(:spec)
+begin
+  RuboCop::RakeTask.new
+rescue NameError, LoadError => e
+  puts e.message
+end
 
-require 'rubocop/rake_task'
+begin
+  require 'arxutils_sqlite3/rake_task'
+rescue LoadError => e
+  puts e.message
+end
 
-RuboCop::RakeTask.new
+begin
+  task default: %i[spec rubocop]
+rescue LoadError => e
+  puts e.message
+end
 
-# task default: %i[spec rubocop]
-
-require 'arxutils_sqlite3/rake_task'
