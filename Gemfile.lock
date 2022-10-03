@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    arxutils_sqlite3 (0.1.59)
+    arxutils_sqlite3 (0.1.60)
       activerecord (~> 6.1)
       activesupport
       bundler
