@@ -12,13 +12,13 @@ module Arxutils_Sqlite3
     # nameというメソッド／アトリビュート(string)を持つ。"'/'を区切り文字として持つ階層を表す文字列
     # registerメソッドを呼び出す時は、hier_symbolのみを指定してcreate出来なければならない（そうでなければSQLの制約違反発生）
     attr_reader :base_klass
+    # IDの親子関係で階層処理を実現するクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
+    # parent_id(integer) , child_id(integer) , leve(integer)というメソッド／アトリビュートを持つ
+    attr_reader :hier_klass
     # '/'が区切り文字の文字列で階層処理を実現するクラスのカレントに対応するクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
     attr_reader :current_klass
     # '/'が区切り文字の文字列で階層処理を実現するクラスのインバリッドに対応するクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
     attr_reader :invalid_klass
-    # IDの親子関係で階層処理を実現するクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
-    # parent_id(integer) , child_id(integer) , leve(integer)というメソッド／アトリビュートを持つ
-    attr_reader :hier_klass
 
     # 初期化
     def initialize(field_name, hier_symbol, _hier_name, base_klass, hier_klass, current_klass, invalid_klass)
@@ -27,7 +27,7 @@ module Arxutils_Sqlite3
       # '/'が区切り文字の文字列で階層処理を実現するクラスの階層構造を表す文字列を持つメソッド／アトリビュートを表すシンボ
       @hier_symbol = hier_symbol
       # '/'が区切り文字の文字列で階層処理を実現するクラスのクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
-      @base_klass = base_klass
+      @base_klass  = base_klass
       # '/'が区切り文字の文字列で階層処理を実現するクラスのカレントに対応するクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
       @current_klass = current_klass
       # '/'が区切り文字の文字列で階層処理を実現するクラスのインバリッドに対応するクラス名(DB中のテーブルに対応するActiveRecordの子クラス)
@@ -43,15 +43,18 @@ module Arxutils_Sqlite3
       id = nil
       base = @base_klass.find_by({ @hier_symbol => hier })
       if base
-        delete_at(base.org_id)
-        @base_klass.delete_at(base.id)
+        delete_at(base.id)
+        # @base_klass.delete_at(base.id)
+        @base_klass.delete(base.id)
       end
       id
     end
 
     def delete_by_id(id)
-      base = @base_klass.find_by(org_id: id)
+      # base = @base_klass.find_by(id: id)
+      base = @base_klass.find(id)
       delete_at(id)
+      @base_klass.delete_at(base.id)
       @base_klass.delete_at(base.id)
     end
 
@@ -142,15 +145,22 @@ module Arxutils_Sqlite3
     def delete_at(num)
       # 子として探す
       hier = @hier_klass.find_by(child_id: num)
-      level = hier.level
-      parent_id = hier.parent_id
-      # base = @base_klass.find_by(ord_id: num)
+      if hier
+        level = hier.level
+        parent_id = hier.parent_id
+      end
 
-      # parent_base = @base_klass.find_by(ord_id: parent_id)
-      # parent_hier_string = parent_base.__send__ @hier_symbol
-
+      parent = @base_klass.find(num)
+      parent_hier = get_name(parent)
       # 属する子を探す
       children_hier = @hier_klass.where(parent_id: num)
+      return unless children_hier
+
+      adjust_children_hier(children_hier, level, parent_id, parent_hier)
+    end
+
+    # 子の階層の調整
+    def adjust_children_hier(children_hier, level, parent_id, parent_hier)
       # 属する子の階層レベルを調整する(削除するのでlevel - 1になる)
       children_hier.map { |x| level_adjust(x, level - 1) }
       # 属する子の親を、親の親にする
@@ -160,7 +170,7 @@ module Arxutils_Sqlite3
       end
       # 属する子のhierを調整する
       children_hier.map do |x|
-        child_base = @base_klass.find_by(org_id: x.child_id)
+        child_base = @base_klass.find_by(id: x.child_id)
         name = get_name(child_base)
         child_base.hier = make_hier(parent_hier, name)
         child_base.save
@@ -183,14 +193,16 @@ module Arxutils_Sqlite3
     # 階層を表すデータ構造で指定された階層の下部階層の名前を調整する
     def hier_adjust(base)
       parent_hier_string = base.__send__ @hier_symbol
-      parent_num = base.org_id
+      # parent_num = base.org_id
+      parent_num = base.id
 
       tbl_rows = @hier_klass.where(parent_id: parent_num)
       return if tbl_rows.size.zero?
 
       tbl_rows.map do |x|
         child_num = x.child_id
-        item_row = @base_klass.find_by(org_id: child_num)
+        #        item_row = @base_klass.find_by(org_id: child_num)
+        item_row = @base_klass.find(child_num)
         item_row.hier = make_hier(parent_hier_string, get_name(item_row))
         item_row.save
         hier_adjust(item_row)
