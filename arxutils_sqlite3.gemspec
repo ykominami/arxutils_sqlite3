@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'bundler'
 
-  spec.add_runtime_dependency 'activerecord', '~> 6.1'
+  spec.add_runtime_dependency 'activerecord', '>= 6.1', '< 8.0'
   spec.add_runtime_dependency 'activesupport'
   spec.add_runtime_dependency 'rake', '~> 13.0'
   spec.add_runtime_dependency 'simpleoptparse'
