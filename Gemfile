@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in arxutils_sqlite3.gemspec
 gemspec
 
-gem 'activerecord', '~> 6.1'
+gem 'activerecord', '~> 6.1.7.1'
 gem 'activesupport'
 gem 'bundler'
 gem 'rake', '~> 13.0'
