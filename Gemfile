@@ -22,7 +22,7 @@ group :test, optional: true do
   gem 'rspec', '~> 3.0'
   # gem "rspec"
   gem 'power_assert', '~> 1.1.5'
-  gem 'rubocop', '~> 1.7'
+  gem 'rubocop', '~> 1.50'
   gem 'rubocop-performance'
   gem 'rubocop-rake'
   gem 'rubocop-rspec'
