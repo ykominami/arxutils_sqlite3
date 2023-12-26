@@ -8,7 +8,7 @@ gemspec
 gem 'activerecord', '~> 6.1.7.1'
 gem 'activesupport'
 gem 'bundler'
-gem 'rake', '~> 13.0'
+gem 'rake', '~> 13.1'
 gem 'simpleoptparse'
 gem 'sqlite3'
 gem 'ykutils'
