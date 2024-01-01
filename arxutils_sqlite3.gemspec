@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'ykutils'
   spec.add_runtime_dependency 'ykxutils'
 
-  spec.add_development_dependency 'power_assert', '~> 1.1.5'
+  spec.add_development_dependency 'power_assert', '~> 2.0.3'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop', '~> 1.7'
   spec.add_development_dependency 'rubocop-performance'
