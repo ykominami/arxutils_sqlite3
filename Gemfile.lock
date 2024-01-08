@@ -45,7 +45,7 @@ GEM
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
-    power_assert (1.1.7)
+    power_assert (2.0.3)
     racc (1.7.3)
     rainbow (3.1.1)
     rake (13.1.0)
@@ -114,7 +114,7 @@ DEPENDENCIES
   activesupport
   arxutils_sqlite3!
   bundler
-  power_assert (~> 1.1.5)
+  power_assert (~> 2.0.3)
   rake (~> 13.1)
   rspec (~> 3.0)
   rubocop (~> 1.50)
