@@ -36,24 +36,25 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'bundler'
 
-  spec.add_runtime_dependency 'activerecord', '~> 6.1'
-  spec.add_runtime_dependency 'activesupport'
-  spec.add_runtime_dependency 'rake', '~> 13.0'
-  spec.add_runtime_dependency 'simpleoptparse'
-  spec.add_runtime_dependency 'sqlite3'
-  spec.add_runtime_dependency 'ykutils'
-  spec.add_runtime_dependency 'ykxutils'
+  # spec.add_runtime_dependency 'activerecord', '~> 6.1'
+  # spec.add_runtime_dependency 'activesupport'
+  # spec.add_runtime_dependency 'rake', '~> 13.0'
+  # spec.add_runtime_dependency 'simpleoptparse'
+  # spec.add_runtime_dependency 'sqlite3'
+  # spec.add_runtime_dependency 'ykutils'
+  # spec.add_runtime_dependency 'ykxutils'
 
-  spec.add_development_dependency 'power_assert', '~> 2.0.3'
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'rubocop', '~> 1.7'
-  spec.add_development_dependency 'rubocop-performance'
-  spec.add_development_dependency 'rubocop-rake'
-  spec.add_development_dependency 'rubocop-rspec'
-  spec.add_development_dependency 'yard'
+  # spec.add_development_dependency 'power_assert', '~> 2.0.3'
+  # spec.add_development_dependency 'rspec', '~> 3.0'
+  # spec.add_development_dependency 'rubocop', '~> 1.7'
+  # spec.add_development_dependency 'rubocop-performance'
+  # spec.add_development_dependency 'rubocop-rake'
+  # spec.add_development_dependency 'rubocop-rspec'
+  # spec.add_development_dependency 'yard'
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
 
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

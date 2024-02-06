@@ -5,7 +5,7 @@ module Arxutils_Sqlite3
   class Util
     # DBログファイルへのパスの作成
     def self.make_log_path(db_dir, dbconfig)
-      log_path = ''
+      log_path = ""
       log_fname = Dbutil::Dbconnect.make_log_file_name(
         dbconfig, Config::DATABASELOG
       )

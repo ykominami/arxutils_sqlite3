@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'dbutil/dbconnect'
+require_relative "dbutil/dbconnect"
 
 module Arxutils_Sqlite3
   # DB操作用ユーティリティクラス

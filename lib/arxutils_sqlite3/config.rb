@@ -1,45 +1,45 @@
 # frozen_string_literal: true
 
-require 'ykutils'
+require "ykutils"
 
 module Arxutils_Sqlite3
   ##
   # migrateに必要なファイルをテンプレートから作成し、migarteを実行する
   class Config
     # DB格納ディレクトリ名
-    DB_DIR = 'db'
+    DB_DIR = "db"
     # migrate用スクリプト格納ディレクトリ名
-    MIGRATE_BASE_DIR = 'migrate'
+    MIGRATE_BASE_DIR = "migrate"
     # SQLITE3用DB構成名
-    DBCONFIG_SQLITE3 = 'sqlite3'
+    DBCONFIG_SQLITE3 = "sqlite3"
     # MYSQL用DB構成名
-    DBCONFIG_MYSQL = 'mysql'
+    DBCONFIG_MYSQL = "mysql"
     # DB構成格納用ディレクトリ名
-    CONFIG_DIR_NAME = 'config'
+    CONFIG_DIR_NAME = "config"
 
     # コンフィグディレクトリへのパス
     CONFIG_DIR = Pathname.new(CONFIG_DIR_NAME)
     # データベース用ログファイル名
-    DATABASELOG = 'database.log'
+    DATABASELOG = "database.log"
     # テンプレートディレクトリへのパス
-    TEMPLATE_DIR = Arxutils_Sqlite3::TOP_DIR.join('template')
+    TEMPLATE_DIR = Arxutils_Sqlite3::TOP_DIR.join("template")
     # リレーションテンプレートディレクトリへのパス
-    TEMPLATE_ACRECORD_DIR = TEMPLATE_DIR.join('acrecord')
+    TEMPLATE_ACRECORD_DIR = TEMPLATE_DIR.join("acrecord")
     TEMPLATE_CONFIG_DIR = TEMPLATE_DIR.join(CONFIG_DIR)
-    DB_SCHEME_DIR = TEMPLATE_ACRECORD_DIR.join('db_scheme')
-    DB_SCHEME_FILE = DB_SCHEME_DIR.join('db_scheme.yml')
-    SAMPLE_DB_SCHEME_FILE = CONFIG_DIR.join('db_scheme.yml.sample')
-    DB_SCHEME_FILE_NAME = 'db_scheme.yml'
-    DB_SCHEME_FILE_NAME_B = 'db_scheme'
-    OPTS_FILE_NAME = 'opts.tmpl'
-    SAMPLE_OPTS_FILE_NAME = 'opts.rb.sample'
-    OPTS_FILE_NAME_B = 'opts'
-    DEST_OPTS_FILE_NAME = 'opts.rb'
-    DEST_OPTS_FILE_NAME_B = 'opts'
-    DBSETUP_FILE_NAME = 'dbsetup.tmpl'
-    DBSETUP_FILE_NAME_B = 'dbsetup'
-    DEST_DBSETUP_FILE_NAME = 'dbsetup.rb'
-    SETTING_YAML_FILE_NAME = 'setting.yml'
+    DB_SCHEME_DIR = TEMPLATE_ACRECORD_DIR.join("db_scheme")
+    DB_SCHEME_FILE = DB_SCHEME_DIR.join("db_scheme.yml")
+    SAMPLE_DB_SCHEME_FILE = CONFIG_DIR.join("db_scheme.yml.sample")
+    DB_SCHEME_FILE_NAME = "db_scheme.yml"
+    DB_SCHEME_FILE_NAME_B = "db_scheme"
+    OPTS_FILE_NAME = "opts.tmpl"
+    SAMPLE_OPTS_FILE_NAME = "opts.rb.sample"
+    OPTS_FILE_NAME_B = "opts"
+    DEST_OPTS_FILE_NAME = "opts.rb"
+    DEST_OPTS_FILE_NAME_B = "opts"
+    DBSETUP_FILE_NAME = "dbsetup.tmpl"
+    DBSETUP_FILE_NAME_B = "dbsetup"
+    DEST_DBSETUP_FILE_NAME = "dbsetup.rb"
+    SETTING_YAML_FILE_NAME = "setting.yml"
     DEST_CONFIG_DIR = Pathname.new(CONFIG_DIR)
     OPTS_FILE = DB_SCHEME_DIR.join(OPTS_FILE_NAME)
     SAMPLE_OPTS_FILE = CONFIG_DIR.join(SAMPLE_OPTS_FILE_NAME)
@@ -63,7 +63,7 @@ module Arxutils_Sqlite3
     # 削除しないファイル群
     EXCLUDE_FILES = %w[SETTING_YAML_FILE_NAME].freeze
     # 作成対象のActiveRecordの子クラスのデフォルトクラス名
-    DEFAULT_MOD = 'Xenop'
+    DEFAULT_MOD = "Xenop"
 
     def default_mod
       DEFAULT_MOD
@@ -171,7 +171,7 @@ module Arxutils_Sqlite3
     def require_opts_file
       return unless DEST_OPTS_FILE.exist?
 
-      opts_file = File.join('./', DEST_OPTS_FILE_B.to_s)
+      opts_file = File.join("./", DEST_OPTS_FILE_B.to_s)
       begin
         require opts_file
       rescue LoadError
@@ -190,7 +190,7 @@ module Arxutils_Sqlite3
 
     # Dbsetupファイル(Rubyスクリプトファイル)のrequire
     def require_dbsetup_file
-      dbsetup_file = File.join('.', dest_dbsetup_file_b.to_s)
+      dbsetup_file = File.join(".", dest_dbsetup_file_b.to_s)
       begin
         require dbsetup_file
       rescue LoadError
@@ -289,7 +289,7 @@ module Arxutils_Sqlite3
 
     def make_dbsetup_file(db_scheme_ary, acrecord, _mod, dest_dbsetup_file)
       scope = Object.new
-      hash0 = { mod_name: acrecord[:module].join('::') }
+      hash0 = { mod_name: acrecord[:module].join("::") }
       hash = db_scheme_ary[0].merge(hash0)
       result_content = Ykutils::Erubyx.erubi_render_with_template_file(src_dbsetup_file, scope, hash)
 

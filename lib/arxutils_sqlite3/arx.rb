@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'erb'
-require 'ykutils'
+require "erb"
+require "ykutils"
 
 module Arxutils_Sqlite3
   # スキーマ設定に基づき、テンプレートから変換する
@@ -28,10 +28,10 @@ module Arxutils_Sqlite3
       @field ||= Struct.new(:name, :type, :null)
 
       @data[:ary] = if @data[:items]
-                      @data[:items].map { |x| @field.new(*x) }
-                    else
-                      []
-                    end
+          @data[:items].map { |x| @field.new(*x) }
+        else
+          []
+        end
     end
 
     # テンプレートファイルを元にした変換結果を返す
