@@ -25,7 +25,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'yard'
+  gem 'yard', '~> 0.9.36'
   gem 'rufo'
 end
 
