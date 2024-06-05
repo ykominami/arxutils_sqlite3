@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "ykutils"
+# require "ykutils"
 require "ykxutils"
 
 require "bigdecimal"
