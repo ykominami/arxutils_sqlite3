@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   # spec.add_runtime_dependency 'simpleoptparse'
   # spec.add_runtime_dependency 'sqlite3'
   # spec.add_runtime_dependency 'ykutils'
-  # spec.add_runtime_dependency 'ykxutils'
+  spec.add_runtime_dependency 'ykxutils'
 
   # spec.add_development_dependency 'power_assert', '~> 2.0.3'
   # spec.add_development_dependency 'rspec', '~> 3.0'

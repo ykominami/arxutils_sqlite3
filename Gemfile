@@ -18,8 +18,7 @@ gem 'rake', '~> 13.1'
 gem 'simpleoptparse'
 gem 'sqlite3'
 gem 'ykutils'
-gem 'ykxutils'
-# gem 'ykxutils' , path: "../ykxutils"
+gem 'ykxutils' , path: '../ykxutils'
 
 group :development, :test do
   gem 'power_assert', '~> 2.0.3'

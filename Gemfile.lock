@@ -1,8 +1,16 @@
 PATH
+  remote: ../ykxutils
+  specs:
+    ykxutils (0.1.11)
+      erubi
+      tilt
+
+PATH
   remote: .
   specs:
-    arxutils_sqlite3 (0.1.61)
+    arxutils_sqlite3 (0.1.62)
       bundler
+      ykxutils
 
 GEM
   remote: https://rubygems.org/
@@ -128,7 +136,6 @@ GEM
       erubi
       filex
       tilt
-    ykxutils (0.1.12)
 
 PLATFORMS
   aarch64-linux
@@ -161,7 +168,7 @@ DEPENDENCIES
   sqlite3
   yard (~> 0.9.36)
   ykutils
-  ykxutils
+  ykxutils!
 
 BUNDLED WITH
    2.5.3

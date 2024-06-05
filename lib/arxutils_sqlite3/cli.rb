@@ -69,7 +69,8 @@ module Arxutils_Sqlite3
       Arxutils_Sqlite3::Dbutil::Dbconnect.db_connect(@config, @dbconfig, @env)
 
       # マイグレーション実行
-      ActiveRecord::MigrationContext.new(migrate_dir, ActiveRecord::SchemaMigration).up
+      # ActiveRecord::MigrationContext.new(migrate_dir, ActiveRecord::SchemaMigration).up
+      ActiveRecord::MigrationContext.new(migrate_dir).up
     end
 
     def acr
