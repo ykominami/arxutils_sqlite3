@@ -16,7 +16,7 @@ gem 'bigdecimal'
 gem 'bundler'
 gem 'rake', '~> 13.1'
 gem 'simpleoptparse'
-gem 'sqlite3'
+gem 'sqlite3' , '2.0.2'
 gem 'ykutils'
 gem 'ykxutils' , path: '../ykxutils'
 
