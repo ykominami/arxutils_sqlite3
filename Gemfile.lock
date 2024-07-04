@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    arxutils_sqlite3 (0.1.63)
+    arxutils_sqlite3 (0.1.64)
       bundler
       sqlite3 (~> 1.4)
       ykxutils
