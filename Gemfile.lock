@@ -1,16 +1,9 @@
 PATH
-  remote: ../ykxutils
-  specs:
-    ykxutils (0.1.13)
-      erubi
-      tilt
-
-PATH
   remote: .
   specs:
-    arxutils_sqlite3 (0.1.63)
+    arxutils_sqlite3 (0.1.64)
       bundler
-      sqlite3 (= 2.0.2)
+      sqlite3 (~> 1.4)
       ykxutils
 
 GEM
@@ -120,12 +113,12 @@ GEM
     ruby-progressbar (1.13.0)
     rufo (0.17.1)
     simpleoptparse (0.1.2)
-    sqlite3 (2.0.2-aarch64-linux-gnu)
-    sqlite3 (2.0.2-arm-linux-gnu)
-    sqlite3 (2.0.2-arm64-darwin)
-    sqlite3 (2.0.2-x86-linux-gnu)
-    sqlite3 (2.0.2-x86_64-darwin)
-    sqlite3 (2.0.2-x86_64-linux-gnu)
+    sqlite3 (1.7.3-aarch64-linux)
+    sqlite3 (1.7.3-arm-linux)
+    sqlite3 (1.7.3-arm64-darwin)
+    sqlite3 (1.7.3-x86-linux)
+    sqlite3 (1.7.3-x86_64-darwin)
+    sqlite3 (1.7.3-x86_64-linux)
     stringio (3.1.0)
     tilt (2.3.0)
     timeout (0.4.1)
@@ -136,6 +129,9 @@ GEM
     ykutils (0.1.7)
       erubi
       filex
+      tilt
+    ykxutils (0.1.13)
+      erubi
       tilt
 
 PLATFORMS
@@ -166,10 +162,10 @@ DEPENDENCIES
   rubocop-rspec
   rufo
   simpleoptparse
-  sqlite3 (= 2.0.2)
+  sqlite3 (~> 1.4)
   yard (~> 0.9.36)
   ykutils
-  ykxutils!
+  ykxutils
 
 BUNDLED WITH
    2.5.3
