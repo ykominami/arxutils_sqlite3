@@ -16,9 +16,13 @@ gem 'bigdecimal'
 gem 'bundler'
 gem 'rake', '~> 13.1'
 gem 'simpleoptparse'
-gem 'sqlite3' , '2.0.2'
+# Use sqlite3 as the database for Active Record
+gem "sqlite3", "~> 1.4"
+
+# gem 'sqlite3' , '2.0.2'
+#
 gem 'ykutils'
-gem 'ykxutils' , path: '../ykxutils'
+gem 'ykxutils' # , path: '../ykxutils'
 
 group :development, :test do
   gem 'power_assert', '~> 2.0.3'
